@@ -181,7 +181,7 @@
         </header>
 
         <!-- 약물 검색 섹션 -->
-        <section class="card scroll-hidden scroll-delay-1" id="drugSearchCard">
+        <section class="card scroll-hidden scroll-delay-1">
             <h2 class="sr-only">약물 검색</h2>
             <div class="search-box">
                 <input type="text" 
@@ -193,16 +193,16 @@
                 <button class="btn btn-primary" onclick="searchDrug()" aria-label="검색">
                 </button>
             </div>
+            
+            <div id="searchResults" class="search-results scroll-fade">
+                <div id="searchResultsContent" class="search-results-content"></div>
+            </div>
+            
+            <div class="recent-searches" style="margin-top: 1rem;">
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">최근 검색</div>
+                <div id="recentSearchesList" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+            </div>
         </section>
-        <!-- Move search results below the card -->
-        <div id="searchResults" class="search-results scroll-fade">
-            <div id="searchResultsContent" class="search-results-content"></div>
-        </div>
-        
-        <div class="recent-searches" style="margin-top: 1rem;">
-            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">최근 검색</div>
-            <div id="recentSearchesList" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
-        </div>
 
         <!-- 자주 찾는 약물 섹션 -->
         <section class="example-drugs scroll-slide-left scroll-delay-2">
