@@ -4586,4 +4586,27 @@ function updateDURStats() {
     }
 }
 
+// Hide search results when input loses focus or input is too short
+function hideSearchResultsIfNeeded(e) {
+    const searchInput = document.getElementById('drugSearch');
+    const searchResults = document.getElementById('searchResults');
+    if (!searchInput || !searchResults) return;
+    // If focus is outside input and results, hide
+    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.classList.remove('show');
+        document.getElementById('searchResultsContent').innerHTML = '';
+    }
+}
+
+document.addEventListener('click', hideSearchResultsIfNeeded);
+document.getElementById('drugSearch').addEventListener('blur', function() {
+    setTimeout(() => {
+        const searchResults = document.getElementById('searchResults');
+        if (searchResults) {
+            searchResults.classList.remove('show');
+            document.getElementById('searchResultsContent').innerHTML = '';
+        }
+    }, 150);
+});
+
  
