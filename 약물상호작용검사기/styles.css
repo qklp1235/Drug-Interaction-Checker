@@ -2097,9 +2097,11 @@ body.scrolling .container::after {
         z-index: 100000;
     }
     
-    /* 모바일에서 상호작용 검사하기 버튼 숨기기 */
+    /* 모바일에서 상호작용 검사하기 버튼 표시 */
     .btn.btn-primary.btn-block[onclick="checkInteraction()"] {
-        display: none !important;
+        display: block !important;
+        width: 100%;
+        margin-top: 1rem;
     }
     .api-status{
         flex-direction: column;
