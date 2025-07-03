@@ -492,10 +492,12 @@ body.scrolling .container::after {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) ;
     gap: 0.2rem;
     margin-bottom: 0.2rem;
+    z-index: 100;
 }
 
 .drug-select-container {
     position: relative;
+    z-index: 100;
 }
 
 .drug-list {
@@ -516,6 +518,7 @@ body.scrolling .container::after {
     transition: var(--scroll-transition);
     z-index: 1000;
     scroll-behavior: smooth;
+    z-index: 100;
 }
 
 /* 약물 리스트 스크롤 그라데이션 */
@@ -533,6 +536,7 @@ body.scrolling .container::after {
     border-radius: var(--radius) var(--radius) 0 0;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
+    z-index: 100;
 }
 
 .drug-list::after {
@@ -549,6 +553,7 @@ body.scrolling .container::after {
     border-radius: 0 0 var(--radius) var(--radius);
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
+    z-index: 100;
 }
 
 /* 스크롤 중일 때 그라데이션 표시 */
@@ -589,6 +594,7 @@ body.scrolling .container::after {
     transition: var(--transition);
     border-bottom: 1px solid var(--border);
     transform: translateX(0);
+    z-index: 100;
 }
 
 .drug-item:last-child {
@@ -605,10 +611,12 @@ body.scrolling .container::after {
 .drug-item.exact-match {
     background: rgba(var(--primary-rgb), 0.05);
     border-left: 3px solid var(--primary);
+    z-index: 100;
 }
 
 .drug-item.exact-match:hover {
     background: rgba(var(--primary-rgb), 0.15);
+    z-index: 100;
 }
 
 .drug-item-name {
@@ -617,6 +625,7 @@ body.scrolling .container::after {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    z-index: 100;
 }
 
 .drug-item-info {
@@ -626,6 +635,7 @@ body.scrolling .container::after {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    z-index: 100;
 }
 
 .top-result {
@@ -636,6 +646,7 @@ body.scrolling .container::after {
     border-radius: 8px;
     font-weight: 700;
     margin-left: auto;
+    z-index: 100;
 }
 
 .match-type {
@@ -646,6 +657,7 @@ body.scrolling .container::after {
     color: var(--primary);
     margin-left: 0.5rem;
     white-space: nowrap;
+    z-index: 100;
 }
 
 /* AI 분석 스타일 */
@@ -657,6 +669,7 @@ body.scrolling .container::after {
     margin-bottom: 1.5rem;
     position: relative;
     overflow: hidden;
+    z-index: 100;
 }
 
 .ai-analysis::before {
@@ -677,11 +690,13 @@ body.scrolling .container::after {
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    z-index: 100;
 }
 
 .ai-icon {
     font-size: 1.5rem;
     animation: pulse 2s infinite;
+    z-index: 100;
 }
 
 @keyframes pulse {
@@ -694,12 +709,14 @@ body.scrolling .container::after {
     color: var(--text);
     font-size: 1.2rem;
     font-weight: 700;
+    z-index: 100;
 }
 
 .ai-analysis-content {
     color: var(--text);
     line-height: 1.7;
     font-size: 0.95rem;
+    z-index: 100;
 }
 
 .ai-analysis-content h2,
@@ -707,22 +724,26 @@ body.scrolling .container::after {
 .ai-analysis-content h4 {
     color: var(--primary);
     margin: 1rem 0 0.5rem 0;
+    z-index: 100;
 }
 
 .ai-analysis-content ul,
 .ai-analysis-content ol {
     margin: 0.5rem 0;
     padding-left: 1.5rem;
+    z-index: 100;
 }
 
 .ai-analysis-content li {
     margin: 0.25rem 0;
+    z-index: 100;
 }
 
 .separator {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--border), transparent);
     margin: 1.5rem 0;
+    z-index: 100;
 }
 
 .fda-data,
@@ -731,6 +752,7 @@ body.scrolling .container::after {
     background: rgba(var(--primary-rgb), 0.03);
     border-radius: var(--radius);
     border-left: 3px solid var(--primary);
+    z-index: 100;
 }
 
 .fda-data h4,
@@ -738,17 +760,20 @@ body.scrolling .container::after {
     color: var(--primary);
     margin-bottom: 0.75rem;
     font-size: 1.1rem;
+    z-index: 100;
 }
 
 .fda-data h5 {
     color: var(--text);
     font-size: 1rem;
     margin: 1rem 0 0.5rem 0;
+    z-index: 100;
 }
 
 /* FDA Toggle Section */
 .fda-toggle-section {
     margin-top: 20px;
+    z-index: 100;
 }
 
 .fda-toggle-btn {
@@ -767,6 +792,7 @@ body.scrolling .container::after {
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.3s ease;
+    z-index: 100;
 }
 
 .fda-toggle-btn:hover {
@@ -780,21 +806,25 @@ body.scrolling .container::after {
     background: var(--surface);
     border-color: var(--primary);
     color: var(--text);
+    z-index: 100;
 }
 
 .fda-toggle-btn .toggle-icon {
     margin-right: 8px;
     font-size: 1rem;
+    z-index: 100;
 }
 
 .fda-toggle-btn .toggle-text {
     flex: 1;
     text-align: left;
+    z-index: 100;
 }
 
 .fda-toggle-btn .toggle-arrow {
     font-size: 0.8rem;
     transition: transform 0.3s ease;
+    z-index: 100;
 }
 
 .fda-toggle-btn.expanded .toggle-arrow {
@@ -808,6 +838,7 @@ body.scrolling .container::after {
     border: 1px solid var(--border);
     border-radius: 8px;
     animation: fadeInDown 0.3s ease-out;
+    z-index: 100;
 }
 
 /* 설정 모달 */
