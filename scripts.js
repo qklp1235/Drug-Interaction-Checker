@@ -4281,4 +4281,49 @@ function enhanceScrollObserver() {
 // 스크롤 이벤트 리스너 등록
 window.addEventListener('scroll', handleScroll, { passive: true });
 
+// 푸터 슬라이딩 효과 초기화
+function initFooterSliding() {
+    const footer = document.querySelector('.footer');
+    if (!footer) return;
+    
+    let isFooterVisible = false;
+    let scrollTimer;
+    
+    function updateFooterVisibility() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        // 페이지 하단 근처에 도달했는지 확인 (80% 지점)
+        const scrollPercentage = (scrollY + windowHeight) / documentHeight;
+        const shouldShowFooter = scrollPercentage > 0.8;
+        
+        if (shouldShowFooter && !isFooterVisible) {
+            footer.classList.add('show');
+            isFooterVisible = true;
+        } else if (!shouldShowFooter && isFooterVisible) {
+            footer.classList.remove('show');
+            isFooterVisible = false;
+        }
+    }
+    
+    // 스크롤 이벤트 리스너
+    function handleFooterScroll() {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(updateFooterVisibility, 10);
+    }
+    
+    // 이벤트 리스너 등록
+    window.addEventListener('scroll', handleFooterScroll, { passive: true });
+    window.addEventListener('resize', updateFooterVisibility, { passive: true });
+    
+    // 초기 상태 설정
+    updateFooterVisibility();
+}
+
+// 페이지 로드 완료 후 푸터 슬라이딩 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    initFooterSliding();
+});
+
  
