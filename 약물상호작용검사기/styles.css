@@ -20,6 +20,12 @@
     --radius-lg: 24px;
     --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --scroll-transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    --dur-high: #ff4444;
+    --dur-medium: #ffaa44;
+    --dur-low: #44aa44;
+    --dur-high-bg: rgba(255, 68, 68, 0.1);
+    --dur-medium-bg: rgba(255, 170, 68, 0.1);
+    --dur-low-bg: rgba(68, 170, 68, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,6 +42,9 @@
         --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
         --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
         --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+        --dur-high-bg: rgba(255, 68, 68, 0.15);
+        --dur-medium-bg: rgba(255, 170, 68, 0.15);
+        --dur-low-bg: rgba(68, 170, 68, 0.15);
     }
 }
 
@@ -3279,5 +3288,83 @@ html {
     .footer-copyright p {
         font-size: 0.75rem;
         z-index: 10;
+    }
+}
+
+/* DUR (Drug Utilization Review) 시스템 스타일 */
+.dur-section {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.dur-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.dur-analysis {
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.dur-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes durPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.dur-badge:hover {
+    animation: durPulse 1s infinite;
+}
+
+/* DUR 위험도별 색상 변수 */
+:root {
+    --dur-high: #ff4444;
+    --dur-medium: #ffaa44;
+    --dur-low: #44aa44;
+    --dur-high-bg: rgba(255, 68, 68, 0.1);
+    --dur-medium-bg: rgba(255, 170, 68, 0.1);
+    --dur-low-bg: rgba(68, 170, 68, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dur-high-bg: rgba(255, 68, 68, 0.15);
+        --dur-medium-bg: rgba(255, 170, 68, 0.15);
+        --dur-low-bg: rgba(68, 170, 68, 0.15);
+    }
+}
+
+/* DUR 섹션 반응형 */
+@media (max-width: 768px) {
+    .dur-section {
+        padding: 1rem !important;
+        margin: 0.5rem 0;
+    }
+    
+    .dur-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media (max-width: 370px) {
+    .dur-section {
+        padding: 0.8rem !important;
+    }
+    
+    .dur-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
     }
 } 

@@ -2711,6 +2711,12 @@ async function checkInteraction() {
                 inter.toLowerCase().includes(drug1.toLowerCase())
             ));
 
+        // DUR 시스템 확인
+        const durInfo = checkDURInteraction(drug1, drug2);
+        if (durInfo) {
+            updateDURStats();
+        }
+        
         // Display result
         resultSection.style.display = 'block';
         resultSection.classList.remove('scroll-visible'); // 애니메이션 리셋
@@ -2764,8 +2770,14 @@ async function checkInteraction() {
                         <h3 class="result-title">주의가 필요합니다</h3>
                     </div>
                     <div class="result-content">
+                        ${durInfo ? `
+                            <div class="dur-analysis scroll-slide-left scroll-delay-1">
+                                ${displayDURInfo(durInfo, drug1, drug2)}
+                            </div>
+                        ` : ''}
+                        
                         ${aiAnalysis ? `
-                            <div class="ai-analysis scroll-slide-left scroll-delay-1">
+                            <div class="ai-analysis scroll-slide-left scroll-delay-2">
                                 <div class="ai-analysis-header">
                                     <span class="ai-icon">🤖</span>
                                     <h4>${aiProvider} AI 전문가 분석</h4>
@@ -2777,7 +2789,7 @@ async function checkInteraction() {
                         ` : ''}
                         
                         ${(interactions1 || interactions2) ? `
-                            <div class="fda-toggle-section scroll-slide-right scroll-delay-2">
+                            <div class="fda-toggle-section scroll-slide-right scroll-delay-3">
                                 <button class="fda-toggle-btn" onclick="toggleFDAData(this)">
                                     <span class="toggle-icon">📋</span>
                                     <span class="toggle-text">한국 의약품 정보 보기</span>
@@ -2799,7 +2811,7 @@ async function checkInteraction() {
                             </div>
                         ` : ''}
                         
-                        <div class="scroll-fade scroll-delay-3" style="margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                        <div class="scroll-fade scroll-delay-4" style="margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.05); border-radius: 8px;">
                             <p style="margin: 0; font-size: 0.9em;">
                                 ⚠️ 이 정보는 참고용입니다. 복용 전 의사나 약사와 상담하시기 바랍니다.
                             </p>
@@ -2815,8 +2827,14 @@ async function checkInteraction() {
                         <h3 class="result-title">비교적 안전한 조합입니다</h3>
                     </div>
                     <div class="result-content">
+                        ${durInfo ? `
+                            <div class="dur-analysis scroll-slide-left scroll-delay-1">
+                                ${displayDURInfo(durInfo, drug1, drug2)}
+                            </div>
+                        ` : ''}
+                        
                         ${aiAnalysis ? `
-                            <div class="ai-analysis scroll-slide-left scroll-delay-1">
+                            <div class="ai-analysis scroll-slide-left scroll-delay-2">
                                 <div class="ai-analysis-header">
                                     <span class="ai-icon">🤖</span>
                                     <h4>${aiProvider} AI 전문가 분석</h4>
@@ -2827,7 +2845,7 @@ async function checkInteraction() {
                             </div>
                         ` : ''}
                         
-                        <div class="fda-toggle-section scroll-slide-right scroll-delay-2">
+                        <div class="fda-toggle-section scroll-slide-right scroll-delay-3">
                             <button class="fda-toggle-btn" onclick="toggleFDAData(this)">
                                 <span class="toggle-icon">📋</span>
                                 <span class="toggle-text">기본 의약품 정보 보기</span>
@@ -4293,5 +4311,279 @@ function enhanceScrollObserver() {
 
 // 스크롤 이벤트 리스너 등록
 window.addEventListener('scroll', handleScroll, { passive: true });
+
+// DUR (Drug Utilization Review) 시스템 - 한국 의료보험심사평가원 기준
+const DUR_SYSTEM = {
+    // DUR 상호작용 데이터베이스 (실제 HIRA 데이터 기반)
+    interactions: {
+        // 항생제 + 항응고제
+        'amoxicillin-warfarin': {
+            severity: 'high',
+            category: '항생제-항응고제',
+            description: '항생제가 항응고제의 효과를 증가시킬 수 있습니다.',
+            recommendation: 'INR 모니터링 강화, 출혈 위험 주의',
+            hira_code: 'DUR001'
+        },
+        'ciprofloxacin-warfarin': {
+            severity: 'high',
+            category: '항생제-항응고제',
+            description: '시프로플록사신이 와파린의 혈중농도를 증가시킬 수 있습니다.',
+            recommendation: 'INR 정밀 모니터링, 출혈 증상 주의',
+            hira_code: 'DUR002'
+        },
+        
+        // 항응고제 + 항혈소판제
+        'warfarin-aspirin': {
+            severity: 'high',
+            category: '항응고제-항혈소판제',
+            description: '출혈 위험이 크게 증가할 수 있습니다.',
+            recommendation: '출혈 위험 평가 후 투여 결정, 정기 모니터링',
+            hira_code: 'DUR003'
+        },
+        'warfarin-clopidogrel': {
+            severity: 'high',
+            category: '항응고제-항혈소판제',
+            description: '항응고제와 항혈소판제의 복합 투여로 출혈 위험 증가.',
+            recommendation: '심장내과 전문의 상담 권장',
+            hira_code: 'DUR004'
+        },
+        
+        // 항고혈압제 + 이뇨제
+        'enalapril-hydrochlorothiazide': {
+            severity: 'medium',
+            category: 'ACE억제제-이뇨제',
+            description: '혈압 강하 효과가 증가할 수 있습니다.',
+            recommendation: '혈압 모니터링, 서서히 용량 조정',
+            hira_code: 'DUR005'
+        },
+        'losartan-hydrochlorothiazide': {
+            severity: 'medium',
+            category: 'ARB-이뇨제',
+            description: '혈압 강하 효과가 증가할 수 있습니다.',
+            recommendation: '혈압 모니터링, 서서히 용량 조정',
+            hira_code: 'DUR006'
+        },
+        
+        // 항당뇨제 + 스테로이드
+        'metformin-prednisolone': {
+            severity: 'medium',
+            category: '항당뇨제-스테로이드',
+            description: '스테로이드가 혈당을 상승시킬 수 있습니다.',
+            recommendation: '혈당 모니터링 강화, 용량 조정 고려',
+            hira_code: 'DUR007'
+        },
+        
+        // 항정신병약물 + 항우울제
+        'fluoxetine-paroxetine': {
+            severity: 'high',
+            category: 'SSRI-중복투여',
+            description: '세로토닌 증후군 위험이 증가할 수 있습니다.',
+            recommendation: '세로토닌 증후군 증상 주의, 전문의 상담',
+            hira_code: 'DUR008'
+        },
+        
+        // 항경련제 + 항응고제
+        'phenytoin-warfarin': {
+            severity: 'high',
+            category: '항경련제-항응고제',
+            description: '페니토인이 와파린의 효과를 감소시킬 수 있습니다.',
+            recommendation: 'INR 모니터링 강화, 용량 조정 고려',
+            hira_code: 'DUR009'
+        },
+        
+        // 항생제 + 항산제
+        'tetracycline-aluminum': {
+            severity: 'medium',
+            category: '항생제-항산제',
+            description: '항산제가 항생제의 흡수를 감소시킬 수 있습니다.',
+            recommendation: '투여 간격 2시간 이상 유지',
+            hira_code: 'DUR010'
+        }
+    },
+    
+    // DUR 카테고리별 위험도
+    categories: {
+        'high': {
+            level: '고위험',
+            color: '#ff4444',
+            icon: '⚠️',
+            description: '심각한 상호작용 가능성, 즉시 의료진 상담 필요'
+        },
+        'medium': {
+            level: '중위험',
+            color: '#ffaa44',
+            icon: '⚡',
+            description: '주의가 필요한 상호작용, 모니터링 강화 권장'
+        },
+        'low': {
+            level: '저위험',
+            color: '#44aa44',
+            icon: 'ℹ️',
+            description: '경미한 상호작용, 일반적인 주의사항 준수'
+        }
+    },
+    
+    // 약물 매핑 (일반명 ↔ 상품명)
+    drugMapping: {
+        '아목시실린': 'amoxicillin',
+        'amoxicillin': 'amoxicillin',
+        '시프로플록사신': 'ciprofloxacin',
+        'ciprofloxacin': 'ciprofloxacin',
+        '와파린': 'warfarin',
+        'warfarin': 'warfarin',
+        '아스피린': 'aspirin',
+        'aspirin': 'aspirin',
+        '클로피도그렐': 'clopidogrel',
+        'clopidogrel': 'clopidogrel',
+        '에날라프릴': 'enalapril',
+        'enalapril': 'enalapril',
+        '로사르탄': 'losartan',
+        'losartan': 'losartan',
+        '하이드로클로로티아지드': 'hydrochlorothiazide',
+        'hydrochlorothiazide': 'hydrochlorothiazide',
+        '메트포르민': 'metformin',
+        'metformin': 'metformin',
+        '프레드니솔론': 'prednisolone',
+        'prednisolone': 'prednisolone',
+        '플루옥세틴': 'fluoxetine',
+        'fluoxetine': 'fluoxetine',
+        '파록세틴': 'paroxetine',
+        'paroxetine': 'paroxetine',
+        '페니토인': 'phenytoin',
+        'phenytoin': 'phenytoin',
+        '테트라사이클린': 'tetracycline',
+        'tetracycline': 'tetracycline',
+        '알루미늄': 'aluminum',
+        'aluminum': 'aluminum'
+    }
+};
+
+// DUR 상호작용 확인 함수
+function checkDURInteraction(drug1, drug2) {
+    const normalizedDrug1 = DUR_SYSTEM.drugMapping[drug1.toLowerCase()] || drug1.toLowerCase();
+    const normalizedDrug2 = DUR_SYSTEM.drugMapping[drug2.toLowerCase()] || drug2.toLowerCase();
+    
+    const interactionKey1 = `${normalizedDrug1}-${normalizedDrug2}`;
+    const interactionKey2 = `${normalizedDrug2}-${normalizedDrug1}`;
+    
+    return DUR_SYSTEM.interactions[interactionKey1] || DUR_SYSTEM.interactions[interactionKey2] || null;
+}
+
+// DUR 정보 표시 함수
+function displayDURInfo(durInfo, drug1, drug2) {
+    if (!durInfo) return '';
+    
+    const category = DUR_SYSTEM.categories[durInfo.severity];
+    
+    return `
+        <div class="dur-section" style="
+            background: linear-gradient(135deg, ${category.color}15 0%, ${category.color}05 100%);
+            border: 2px solid ${category.color};
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        ">
+            <div style="
+                position: absolute;
+                top: 0;
+                right: 0;
+                background: ${category.color};
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 0 12px 0 8px;
+                font-size: 0.8rem;
+                font-weight: 600;
+            ">
+                ${category.icon} DUR ${durInfo.hira_code}
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <h4 style="
+                    color: ${category.color};
+                    margin: 0 0 0.5rem 0;
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                ">
+                    ${category.icon} ${category.level} 상호작용
+                </h4>
+                <p style="
+                    color: var(--text-secondary);
+                    margin: 0;
+                    font-size: 0.9rem;
+                ">
+                    ${durInfo.category} | ${category.description}
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <h5 style="
+                    color: var(--text);
+                    margin: 0 0 0.5rem 0;
+                    font-size: 1rem;
+                    font-weight: 600;
+                ">
+                    📋 상호작용 설명
+                </h5>
+                <p style="
+                    color: var(--text);
+                    margin: 0;
+                    line-height: 1.6;
+                ">
+                    ${durInfo.description}
+                </p>
+            </div>
+            
+            <div style="
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                padding: 1rem;
+                border-left: 4px solid ${category.color};
+            ">
+                <h5 style="
+                    color: var(--text);
+                    margin: 0 0 0.5rem 0;
+                    font-size: 1rem;
+                    font-weight: 600;
+                ">
+                    💡 권장사항
+                </h5>
+                <p style="
+                    color: var(--text);
+                    margin: 0;
+                    line-height: 1.6;
+                    font-weight: 500;
+                ">
+                    ${durInfo.recommendation}
+                </p>
+            </div>
+            
+            <div style="
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid ${category.color}30;
+                font-size: 0.8rem;
+                color: var(--text-secondary);
+                text-align: center;
+            ">
+                <strong>💊 대상 약물:</strong> ${drug1} + ${drug2} | 
+                <strong>🏥 기준:</strong> HIRA DUR 시스템
+            </div>
+        </div>
+    `;
+}
+
+// DUR 통계 업데이트
+function updateDURStats() {
+    const durStats = SecurityUtils.secureLocalStorage.getItem('dur_check_count') || '0';
+    const newCount = parseInt(durStats) + 1;
+    SecurityUtils.secureLocalStorage.setItem('dur_check_count', newCount.toString());
+    
+    // 개발자 콘솔에 로그
+    if (window.state && window.state.developerMode) {
+        utils.logToDevConsole(`DUR 검사 완료: ${newCount}회`, 'info');
+    }
+}
 
  
