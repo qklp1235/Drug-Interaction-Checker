@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의약품 상호작용 검사기</title>
+    <link rel="stylesheet" href="ko-kr/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💊</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>💊 의약품 상호작용 검사기</h1>
+            <p class="subtitle">여러 의약품 간의 상호작용을 확인하세요</p>
+            <div class="language-selector">
+                <a href="ko-kr/index.html" class="lang-btn active">한국어</a>
+                <a href="us-en/index.html" class="lang-btn">English</a>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <section class="input-section">
+                <h2>의약품 검색</h2>
+                <div class="search-container">
+                    <input type="text" id="drugInput" placeholder="의약품 이름을 입력하세요 (예: 아스피린, 타이레놀)">
+                    <button id="searchBtn">검색</button>
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </section>
+
+            <section class="selected-section">
+                <h2>선택된 의약품</h2>
+                <div class="selected-drugs" id="selectedDrugs">
+                    <p class="empty-message">선택된 의약품이 없습니다.</p>
+                </div>
+                <button id="checkInteraction" class="check-btn" disabled>상호작용 확인</button>
+            </section>
+
+            <section class="results-section" id="resultsSection">
+                <h2>상호작용 결과</h2>
+                <div class="results-container" id="resultsContainer"></div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 의약품 상호작용 검사기. 교육 목적으로만 사용하세요.</p>
+            <p><strong>주의:</strong> 이 도구는 의료 전문가의 조언을 대체하지 않습니다.</p>
+        </footer>
+    </div>
+
+    <script src="ko-kr/scripts.js"></script>
+</body>
+</html> 
