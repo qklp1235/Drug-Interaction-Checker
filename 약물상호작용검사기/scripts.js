@@ -2451,6 +2451,27 @@ const drugSearchHandler = utils.debounce(async function(inputId, drugNumber) {
     }
 }, 300);
 
+// 두 약물 모두 입력 완료 확인 함수
+function checkBothDrugsEntered() {
+    const drug1Element = document.getElementById('drug1');
+    const drug2Element = document.getElementById('drug2');
+    
+    if (drug1Element && drug1Element.value.trim() && drug2Element && drug2Element.value.trim()) {
+        // 이미 확인 메시지가 표시되었는지 확인 (중복 방지)
+        if (!window.interactionCheckShown) {
+            window.interactionCheckShown = true;
+            setTimeout(() => {
+                const shouldProceed = confirm(`두 약물의 상호작용을 확인하시겠습니까?`);
+                if (shouldProceed) {
+                    checkInteraction();
+                }
+                // 확인 후 플래그 리셋
+                window.interactionCheckShown = false;
+            }, 500);
+        }
+    }
+}
+
 // Drug selection
 function selectDrug(inputId, drugName) {
     try {
@@ -2496,18 +2517,8 @@ function selectDrug(inputId, drugName) {
             }
         }
         
-        // 두 번째 약물 선택 완료 시 상호작용 검사 제안
-        if (inputId === 'drug2') {
-            const drug1Element = document.getElementById('drug1');
-            if (drug1Element && drug1Element.value) {
-                setTimeout(() => {
-                    const shouldProceed = confirm(`${drug1Element.value}과(와) ${sanitizedDrugName}의 상호작용을 바로 검사하시겠습니까?`);
-                    if (shouldProceed) {
-                        checkInteraction();
-                    }
-                }, 800);
-            }
-        }
+        // 두 약물 모두 입력 완료 시 상호작용 검사 제안 (checkBothDrugsEntered에서 처리됨)
+        checkBothDrugsEntered();
         
         console.log('✅ 약물 선택 완료:', {
             inputId: inputId,
@@ -3461,10 +3472,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Drug selection input event
     document.getElementById('drug1').addEventListener('input', function() {
         drugSearchHandler('drug1', 1);
+        checkBothDrugsEntered();
     });
 
     document.getElementById('drug2').addEventListener('input', function() {
         drugSearchHandler('drug2', 2);
+        checkBothDrugsEntered();
+    });
+
+    // 약물 입력 필드에서 Enter 키 처리
+    document.getElementById('drug1').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const drug2Element = document.getElementById('drug2');
+            if (drug2Element) {
+                drug2Element.focus();
+            }
+        }
+    });
+
+    document.getElementById('drug2').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkBothDrugsEntered();
+        }
     });
 
     // Close dropdown when clicking outside
