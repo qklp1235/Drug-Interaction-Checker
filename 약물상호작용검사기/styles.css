@@ -2665,6 +2665,7 @@ html {
         var(--primary) 80%, 
         transparent 100%);
     opacity: 0.5;
+    z-index: 1;
 }
 
 .footer-container {
