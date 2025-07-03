@@ -2687,6 +2687,7 @@ html {
     border-top: 1px solid var(--border);
     position: relative;
     overflow: hidden;
+    z-index: 999999 !important;
 }
 
 .footer::before {
@@ -2966,6 +2967,7 @@ html {
 @media (max-width: 768px) {
     .footer {
         margin-top: auto;
+        z-index: 999999 !important;
     }
     
     .footer-container {
@@ -3088,7 +3090,7 @@ html {
 
     .footer{
         margin-top: 6rem;
-        z-index: 10;
+        z-index: 999999 !important;
     }
     
     .footer-container {
