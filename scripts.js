@@ -4299,8 +4299,8 @@ function initFooterSliding() {
         
         // 푸터가 나타나기 시작하는 지점 (70%)
         const startThreshold = 0.7;
-        // 푸터가 완전히 나타나는 지점 (95%)
-        const endThreshold = 0.95;
+        // 푸터가 완전히 나타나는 지점 (100%)
+        const endThreshold = 1.0;
         
         let translateY = 100; // 기본값: 완전히 숨김 (100%)
         
@@ -4309,23 +4309,16 @@ function initFooterSliding() {
                 // 완전히 나타남
                 translateY = 0;
             } else {
-                // 진행도에 따라 점진적으로 나타남
+                // 스크롤 속도와 1:1 매칭되는 선형 진행
                 const progress = (scrollProgress - startThreshold) / (endThreshold - startThreshold);
                 translateY = 100 * (1 - progress);
             }
         }
         
-        // 부드러운 애니메이션을 위한 easing 함수 적용
-        const easedProgress = easeOutQuart(1 - translateY / 100);
-        const finalTranslateY = 100 * (1 - easedProgress);
-        
-        footer.style.transform = `translateY(${finalTranslateY}%)`;
+        // easing 함수 제거하고 직접 적용 (선형)
+        footer.style.transform = `translateY(${translateY}%)`;
     }
-    
-    // Easing 함수 (부드러운 감속)
-    function easeOutQuart(t) {
-        return 1 - Math.pow(1 - t, 4);
-    }
+
     
     // 스크롤 이벤트 리스너 (즉시 실행)
     function handleFooterScroll() {
