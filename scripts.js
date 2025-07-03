@@ -4286,39 +4286,58 @@ function initFooterSliding() {
     const footer = document.querySelector('.footer');
     if (!footer) return;
     
-    let isFooterVisible = false;
-    let scrollTimer;
+    // CSS transition 제거 (JavaScript에서 직접 제어)
+    footer.style.transition = 'none';
     
-    function updateFooterVisibility() {
+    function updateFooterPosition() {
         const scrollY = window.scrollY;
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
         
-        // 페이지 하단 근처에 도달했는지 확인 (80% 지점)
-        const scrollPercentage = (scrollY + windowHeight) / documentHeight;
-        const shouldShowFooter = scrollPercentage > 0.8;
+        // 스크롤 진행도 계산 (0 ~ 1)
+        const scrollProgress = (scrollY + windowHeight) / documentHeight;
         
-        if (shouldShowFooter && !isFooterVisible) {
-            footer.classList.add('show');
-            isFooterVisible = true;
-        } else if (!shouldShowFooter && isFooterVisible) {
-            footer.classList.remove('show');
-            isFooterVisible = false;
+        // 푸터가 나타나기 시작하는 지점 (70%)
+        const startThreshold = 0.7;
+        // 푸터가 완전히 나타나는 지점 (95%)
+        const endThreshold = 0.95;
+        
+        let translateY = 100; // 기본값: 완전히 숨김 (100%)
+        
+        if (scrollProgress >= startThreshold) {
+            if (scrollProgress >= endThreshold) {
+                // 완전히 나타남
+                translateY = 0;
+            } else {
+                // 진행도에 따라 점진적으로 나타남
+                const progress = (scrollProgress - startThreshold) / (endThreshold - startThreshold);
+                translateY = 100 * (1 - progress);
+            }
         }
+        
+        // 부드러운 애니메이션을 위한 easing 함수 적용
+        const easedProgress = easeOutQuart(1 - translateY / 100);
+        const finalTranslateY = 100 * (1 - easedProgress);
+        
+        footer.style.transform = `translateY(${finalTranslateY}%)`;
     }
     
-    // 스크롤 이벤트 리스너
+    // Easing 함수 (부드러운 감속)
+    function easeOutQuart(t) {
+        return 1 - Math.pow(1 - t, 4);
+    }
+    
+    // 스크롤 이벤트 리스너 (즉시 실행)
     function handleFooterScroll() {
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(updateFooterVisibility, 10);
+        requestAnimationFrame(updateFooterPosition);
     }
     
     // 이벤트 리스너 등록
     window.addEventListener('scroll', handleFooterScroll, { passive: true });
-    window.addEventListener('resize', updateFooterVisibility, { passive: true });
+    window.addEventListener('resize', updateFooterPosition, { passive: true });
     
     // 초기 상태 설정
-    updateFooterVisibility();
+    updateFooterPosition();
 }
 
 // 페이지 로드 완료 후 푸터 슬라이딩 초기화
