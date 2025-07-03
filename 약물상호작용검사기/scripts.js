@@ -2483,9 +2483,8 @@ function selectDrug(inputId, drugName) {
             listElement.classList.remove('show');
         }
         
-        // 성공 메시지 표시
+        // 성공 메시지 표시 (제거됨)
         const fieldType = inputId === 'drug1' ? '첫 번째' : '두 번째';
-        utils.showAlert(`${sanitizedDrugName}이(가) ${fieldType} 약물로 선택되었습니다.`, 'success');
         
         // 첫 번째 약물 선택 후 두 번째 약물 입력으로 자동 포커스
         if (inputId === 'drug1') {

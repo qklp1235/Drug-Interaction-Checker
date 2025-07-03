@@ -1676,7 +1676,6 @@ const drugSearchHandler = utils.debounce(async function(inputId, drugNumber) {
 function selectDrug(inputId, drugName) {
     document.getElementById(inputId).value = drugName;
     document.getElementById(`${inputId}List`).classList.remove('show');
-    utils.showAlert(`${drugName} has been selected.`, 'success');
 }
 
 // Check interaction
