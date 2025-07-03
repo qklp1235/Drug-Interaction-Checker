@@ -4187,6 +4187,20 @@ function initScrollGradients() {
         setInitialScrollState(modal);
     });
     
+    // 개발자 패널 콘텐츠
+    const devContent = document.querySelector('.dev-content');
+    if (devContent) {
+        devContent.addEventListener('scroll', () => handleElementScroll(devContent), { passive: true });
+        setInitialScrollState(devContent);
+    }
+    
+    // 개발자 콘솔
+    const devConsole = document.querySelector('.dev-console');
+    if (devConsole) {
+        devConsole.addEventListener('scroll', () => handleElementScroll(devConsole), { passive: true });
+        setInitialScrollState(devConsole);
+    }
+    
     // 동적으로 생성되는 요소들을 위한 MutationObserver
     const observer = new MutationObserver((mutations) => {
         mutations.forEach(mutation => {
@@ -4201,7 +4215,7 @@ function initScrollGradients() {
                     
                     // 자식 요소 중 스크롤 가능한 요소들 확인
                     const scrollableElements = node.querySelectorAll 
-                        ? node.querySelectorAll('.drug-list, .modal-content, .settings-body, #searchResults')
+                        ? node.querySelectorAll('.drug-list, .modal-content, .settings-body, #searchResults, .dev-content, .dev-console')
                         : [];
                     
                     scrollableElements.forEach(element => {

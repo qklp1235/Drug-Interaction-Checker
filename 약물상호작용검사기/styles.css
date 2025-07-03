@@ -2442,6 +2442,52 @@ body.scrolling .container::after {
     flex: 1;
     overflow-y: auto;
     padding: 1rem;
+    position: relative;
+}
+
+.dev-content::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(to bottom, var(--surface) 0%, rgba(255, 255, 255, 0.8) 70%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    margin-bottom: -15px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.dev-content::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(to top, var(--surface) 0%, rgba(255, 255, 255, 0.8) 70%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    margin-top: -15px;
+    border-radius: 0 0 var(--radius) var(--radius);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.dev-content.scrolling::before,
+.dev-content.scrolling::after {
+    opacity: 1;
+}
+
+.dev-content.scrolling[data-scroll-top="false"]::before {
+    opacity: 0;
+}
+
+.dev-content.scrolling[data-scroll-bottom="false"]::after {
+    opacity: 0;
 }
 
 .dev-section {
@@ -2513,6 +2559,52 @@ body.scrolling .container::after {
     font-family: 'Courier New', monospace;
     font-size: 0.75rem;
     line-height: 1.4;
+    position: relative;
+}
+
+.dev-console::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(to bottom, var(--bg) 0%, rgba(255, 255, 255, 0.8) 70%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    margin-bottom: -15px;
+    border-radius: 6px 6px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.dev-console::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(to top, var(--bg) 0%, rgba(255, 255, 255, 0.8) 70%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    margin-top: -15px;
+    border-radius: 0 0 6px 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.dev-console.scrolling::before,
+.dev-console.scrolling::after {
+    opacity: 1;
+}
+
+.dev-console.scrolling[data-scroll-top="false"]::before {
+    opacity: 0;
+}
+
+.dev-console.scrolling[data-scroll-bottom="false"]::after {
+    opacity: 0;
 }
 
 .console-line {
