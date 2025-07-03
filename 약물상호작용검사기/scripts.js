@@ -2756,6 +2756,12 @@ async function checkInteraction() {
         resultSection.style.opacity = '1';
         resultSection.classList.remove('scroll-visible'); // 애니메이션 리셋
         console.log('✅ 결과 섹션 표시 설정 완료');
+        console.log('결과 섹션 스타일:', {
+            display: resultSection.style.display,
+            visibility: resultSection.style.visibility,
+            opacity: resultSection.style.opacity,
+            classList: resultSection.className
+        });
         
         // Try AI analysis
         let aiAnalysis = null;
@@ -2899,23 +2905,35 @@ async function checkInteraction() {
             `;
         }
 
+        console.log('✅ 결과 HTML 생성 완료');
+        console.log('결과 내용 길이:', resultDiv.innerHTML.length);
+
         // 결과 섹션 자체 애니메이션 적용
         setTimeout(() => {
-            resultSection.classList.add('scroll-visible');
-            // 내부 요소들 애니메이션 적용
-            const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-slide-left, .scroll-slide-right, .scroll-fade');
-            animateElements.forEach(el => el.classList.add('scroll-visible'));
-            
-            // 결과 섹션에 스크롤 그라데이션 적용
-            setInitialScrollState(resultSection);
-            
-            // 스크롤 이벤트 리스너가 없다면 추가
-            if (!resultSection.hasAttribute('data-scroll-listener')) {
-                resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
-                resultSection.setAttribute('data-scroll-listener', 'true');
+            try {
+                resultSection.classList.add('scroll-visible');
+                // 내부 요소들 애니메이션 적용
+                const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-slide-left, .scroll-slide-right, .scroll-fade');
+                animateElements.forEach(el => el.classList.add('scroll-visible'));
+                
+                // 결과 섹션에 스크롤 그라데이션 적용 (함수가 있는 경우에만)
+                if (typeof setInitialScrollState === 'function') {
+                    setInitialScrollState(resultSection);
+                }
+                
+                // 스크롤 이벤트 리스너가 없다면 추가 (함수가 있는 경우에만)
+                if (!resultSection.hasAttribute('data-scroll-listener') && typeof handleElementScroll === 'function') {
+                    resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
+                    resultSection.setAttribute('data-scroll-listener', 'true');
+                }
+            } catch (animError) {
+                console.error('애니메이션 적용 중 오류:', animError);
             }
         }, 100);
 
+        // 강제로 표시 설정
+        resultSection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+        
         // Smooth scroll
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
@@ -2962,17 +2980,23 @@ async function checkInteraction() {
         
         // 에러 카드 애니메이션 적용
         setTimeout(() => {
-            resultSection.classList.add('scroll-visible');
-            const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-fade');
-            animateElements.forEach(el => el.classList.add('scroll-visible'));
-            
-            // 결과 섹션에 스크롤 그라데이션 적용
-            setInitialScrollState(resultSection);
-            
-            // 스크롤 이벤트 리스너가 없다면 추가
-            if (!resultSection.hasAttribute('data-scroll-listener')) {
-                resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
-                resultSection.setAttribute('data-scroll-listener', 'true');
+            try {
+                resultSection.classList.add('scroll-visible');
+                const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-fade');
+                animateElements.forEach(el => el.classList.add('scroll-visible'));
+                
+                // 결과 섹션에 스크롤 그라데이션 적용 (함수가 있는 경우에만)
+                if (typeof setInitialScrollState === 'function') {
+                    setInitialScrollState(resultSection);
+                }
+                
+                // 스크롤 이벤트 리스너가 없다면 추가 (함수가 있는 경우에만)
+                if (!resultSection.hasAttribute('data-scroll-listener') && typeof handleElementScroll === 'function') {
+                    resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
+                    resultSection.setAttribute('data-scroll-listener', 'true');
+                }
+            } catch (animError) {
+                console.error('애니메이션 적용 중 오류:', animError);
             }
         }, 100);
         
@@ -3482,6 +3506,8 @@ const devTools = {
 
 // Initialize event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 한국어 페이지 초기화 시작');
+    
     // Displaying the recent searches
     updateRecentSearches();
     
@@ -3617,10 +3643,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // 푸터 기능 초기화
     initFooter();
     
+    // 글로벌 약물 검색 이벤트 초기화
+    initGlobalDrugSearch();
+    
     // 페이지 로드 완료 후 preload 클래스 제거
     setTimeout(() => {
         document.body.classList.remove('preload');
     }, 100);
+    
+    console.log('✅ 한국어 페이지 초기화 완료');
 });
 
 // 설정 버튼 드래그 기능 초기화
@@ -4734,19 +4765,24 @@ const globalDrugSearchHandler = utils.debounce(async function(inputId) {
     }
 }, 300);
 
-// 입력란 이벤트 연결
-['drug1', 'drug2'].forEach(id => {
-    const input = document.getElementById(id);
-    if (input) {
-        input.addEventListener('input', () => globalDrugSearchHandler(id));
-        input.addEventListener('focus', () => globalDrugSearchHandler(id));
-        input.addEventListener('blur', () => {
-            setTimeout(() => {
-                document.getElementById('globalDrugResultList').style.display = 'none';
-            }, 200);
-        });
-    }
-});
+// 글로벌 약물 검색 이벤트 초기화 함수
+function initGlobalDrugSearch() {
+    ['drug1', 'drug2'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', () => globalDrugSearchHandler(id));
+            input.addEventListener('focus', () => globalDrugSearchHandler(id));
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const globalList = document.getElementById('globalDrugResultList');
+                    if (globalList) {
+                        globalList.style.display = 'none';
+                    }
+                }, 200);
+            });
+        }
+    });
+}
 
 // 글로벌 드롭다운에서 약물 선택
 function selectDrugGlobal(inputId, drugName) {
@@ -4789,53 +4825,6 @@ function isValidDrugName(drugName) {
     );
 }
 
-// checkInteraction 수정: 입력값이 유효한 약물명일 때만 검사
-async function checkInteraction() {
-    console.log('🔍 상호작용 검사 시작');
-    const drug1Element = document.getElementById('drug1');
-    const drug2Element = document.getElementById('drug2');
-    if (!drug1Element || !drug2Element) {
-        console.error('❌ 약물 입력 요소를 찾을 수 없습니다');
-        utils.showAlert('시스템 오류: 약물 입력 필드를 찾을 수 없습니다.', 'warning');
-        return;
-    }
-    const drug1 = SecurityUtils.sanitizeInput(drug1Element.value.trim());
-    const drug2 = SecurityUtils.sanitizeInput(drug2Element.value.trim());
-    if (!drug1 && !drug2) {
-        utils.showAlert('두 약물을 모두 입력해주세요.\n\n💡 약물을 검색해서 선택하거나 직접 입력하세요.', 'warning');
-        drug1Element.focus();
-        return;
-    }
-    if (!drug1) {
-        utils.showAlert('첫 번째 약물을 입력해주세요.', 'warning');
-        drug1Element.focus();
-        return;
-    }
-    if (!drug2) {
-        utils.showAlert('두 번째 약물을 입력해주세요.', 'warning');
-        drug2Element.focus();
-        return;
-    }
-    // 약물명 유효성 검사
-    if (!isValidDrugName(drug1)) {
-        utils.showAlert('첫 번째 약물명이 정확하지 않습니다.\n\n자동완성 리스트에서 선택하거나, 올바른 약물명을 입력하세요.', 'warning');
-        drug1Element.focus();
-        drug1Element.select();
-        return;
-    }
-    if (!isValidDrugName(drug2)) {
-        utils.showAlert('두 번째 약물명이 정확하지 않습니다.\n\n자동완성 리스트에서 선택하거나, 올바른 약물명을 입력하세요.', 'warning');
-        drug2Element.focus();
-        drug2Element.select();
-        return;
-    }
-    if (drug1 === drug2) {
-        utils.showAlert('서로 다른 약물을 선택해주세요.\n\n현재 동일한 약물이 선택되어 있습니다.', 'warning');
-        drug2Element.focus();
-        drug2Element.select();
-        return;
-    }
-    // ... 이하 기존 checkInteraction 로직 유지 ...
-}
+
 
  
