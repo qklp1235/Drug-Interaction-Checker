@@ -240,9 +240,6 @@
                                autocomplete="off"
                                aria-label="첫 번째 약물">
                     </div>
-                    <div class="drug-list" id="drug1List">
-                        <div class="drug-items"></div>
-                    </div>
                 </div>
                 
                 <div class="drug-select-container">
@@ -254,9 +251,6 @@
                                autocomplete="off"
                                aria-label="두 번째 약물">
                     </div>
-                    <div class="drug-list" id="drug2List">
-                        <div class="drug-items"></div>
-                    </div>
                 </div>
             </div>
             
@@ -264,6 +258,10 @@
                 상호작용 검사하기
             </button>
         </section>
+        <!-- 카드 바깥쪽에 글로벌 약물 검색 결과 영역 추가 -->
+        <div id="globalDrugResultList" class="drug-list" style="position: static; margin: 1.5rem 0 2rem 0; display: none;">
+            <div class="drug-items"></div>
+        </div>
 
         <!-- 결과 섹션 -->
         <section id="resultSection" class="result-section scroll-scale">

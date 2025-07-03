@@ -4586,4 +4586,132 @@ function updateDURStats() {
     }
 }
 
+// Drug selection dropdown (global, 카드 아래)
+const globalDrugSearchHandler = utils.debounce(async function(inputId) {
+    const input = document.getElementById(inputId);
+    const query = input.value.trim();
+    const globalList = document.getElementById('globalDrugResultList');
+    const itemsContainer = globalList.querySelector('.drug-items');
+    
+    if (query.length < 2) {
+        globalList.style.display = 'none';
+        itemsContainer.innerHTML = '';
+        return;
+    }
+
+    itemsContainer.innerHTML = '<div class="loading-spinner" style="margin: 20px auto;"></div>';
+    globalList.style.display = 'block';
+
+    try {
+        const searchQuery = utils.convertSearchTerm(query);
+        // 한국 의약품 데이터베이스에서 검색
+        const results = [];
+        for (const [drugName, drugInfo] of Object.entries(KOREAN_DRUG_DATABASE)) {
+            if (drugName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                drugInfo.englishName.toLowerCase().includes(searchQuery.toLowerCase())) {
+                results.push({
+                    name: drugInfo.name,
+                    englishName: drugInfo.englishName,
+                    manufacturer: drugInfo.manufacturer
+                });
+            }
+        }
+        // 한영 매핑에서 추가 검색
+        for (const [korean, english] of Object.entries(drugNameMapping)) {
+            if (korean.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                english.toLowerCase().includes(searchQuery.toLowerCase())) {
+                const exists = results.some(r => r.name === korean || r.englishName === english);
+                if (!exists) {
+                    const drugInfo = KOREAN_DRUG_DATABASE[korean];
+                    if (drugInfo) {
+                        results.push({
+                            name: drugInfo.name,
+                            englishName: drugInfo.englishName,
+                            manufacturer: drugInfo.manufacturer
+                        });
+                    } else {
+                        results.push({
+                            name: korean,
+                            englishName: english,
+                            manufacturer: '정보 없음'
+                        });
+                    }
+                }
+            }
+        }
+        if (results.length === 0) {
+            itemsContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-secondary);">검색 결과가 없습니다.</div>`;
+            return;
+        }
+        const uniqueDrugs = new Set();
+        let html = '';
+        results.slice(0, 10).forEach((drug, index) => {
+            if (!uniqueDrugs.has(drug.name)) {
+                uniqueDrugs.add(drug.name);
+                html += `
+                    <div class="drug-item scroll-hidden scroll-delay-${Math.min((index % 4) + 1, 4)}" onclick="selectDrugGlobal('${inputId}', '${drug.name}')">
+                        <div class="drug-item-name">${drug.name}</div>
+                        <div style="font-size: 0.8em; color: var(--text-secondary);">${drug.englishName} · ${drug.manufacturer}</div>
+                    </div>
+                `;
+            }
+        });
+        itemsContainer.innerHTML = html;
+        setTimeout(() => {
+            const newItems = itemsContainer.querySelectorAll('.scroll-hidden');
+            newItems.forEach(item => item.classList.add('scroll-visible'));
+            setInitialScrollState(globalList);
+            if (!globalList.hasAttribute('data-scroll-listener')) {
+                globalList.addEventListener('scroll', () => handleElementScroll(globalList), { passive: true });
+                globalList.setAttribute('data-scroll-listener', 'true');
+            }
+        }, 50);
+    } catch (error) {
+        console.error('Search error:', error);
+        itemsContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-secondary);">검색 중 오류가 발생했습니다.</div>`;
+    }
+}, 300);
+
+// 입력란 이벤트 연결
+['drug1', 'drug2'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+        input.addEventListener('input', () => globalDrugSearchHandler(id));
+        input.addEventListener('focus', () => globalDrugSearchHandler(id));
+        input.addEventListener('blur', () => {
+            setTimeout(() => {
+                document.getElementById('globalDrugResultList').style.display = 'none';
+            }, 200);
+        });
+    }
+});
+
+// 글로벌 드롭다운에서 약물 선택
+function selectDrugGlobal(inputId, drugName) {
+    try {
+        const inputElement = document.getElementById(inputId);
+        if (!inputElement) return;
+        const sanitizedDrugName = SecurityUtils.sanitizeInput(drugName.trim());
+        if (!sanitizedDrugName) return;
+        inputElement.value = sanitizedDrugName;
+        document.getElementById('globalDrugResultList').style.display = 'none';
+        // drug1 선택 시 drug2로 포커스 이동
+        if (inputId === 'drug1') {
+            const drug2Element = document.getElementById('drug2');
+            if (drug2Element && !drug2Element.value) {
+                setTimeout(() => { drug2Element.focus(); }, 300);
+            }
+        }
+        // drug2 선택 시 자동 검사
+        if (inputId === 'drug2') {
+            const drug1Element = document.getElementById('drug1');
+            if (drug1Element && drug1Element.value) {
+                setTimeout(() => { checkInteraction(); }, 500);
+            }
+        }
+    } catch (error) {
+        console.error('selectDrugGlobal 오류:', error);
+    }
+}
+
  
