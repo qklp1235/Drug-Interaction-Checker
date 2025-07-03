@@ -1763,6 +1763,25 @@ body.scrolling .container::after {
     color: white;
 }
 
+.source-badge.api-failed {
+    opacity: 0.6;
+    background: linear-gradient(135deg, #6b7280, #9ca3af) !important;
+}
+
+.api-status-warning {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(var(--warning-rgb), 0.1);
+    border-radius: 6px;
+    border-left: 3px solid var(--warning);
+}
+
+.api-status-warning small {
+    color: var(--warning);
+    font-size: 0.75rem;
+}
+
 .total-results {
     color: var(--text);
     font-weight: 600;

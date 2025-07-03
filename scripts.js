@@ -1031,6 +1031,8 @@ const utils = {
                         <button onclick="devTools.clearStorage()" class="dev-btn">Clear Storage</button>
                         <button onclick="devTools.exportLogs()" class="dev-btn">Export Logs</button>
                         <button onclick="devTools.testAllAPIs()" class="dev-btn">Test APIs</button>
+                        <button onclick="devTools.testFDAAPI()" class="dev-btn">Test FDA API</button>
+                        <button onclick="devTools.testAllDatabases()" class="dev-btn">Test Databases</button>
                         <button onclick="devTools.showDebugInfo()" class="dev-btn">Debug Info</button>
                         <button onclick="devTools.performanceTest()" class="dev-btn">Performance</button>
                     </div>
@@ -1749,16 +1751,41 @@ const utils = {
     // FDA API 호출 함수 (기존 기능 개선)
     async searchFDA(searchTerm, limit = 10) {
         try {
+            // FDA API 호출 전 디버깅 로그
+            console.log('🇺🇸 FDA API 검색 시작:', searchTerm);
+            
             const queries = this.generateFlexibleQueries(searchTerm);
             let allResults = [];
             
             for (const query of queries) {
                 try {
-                    const url = `https://api.fda.gov/drug/label.json?search=${encodeURIComponent(query)}&limit=${limit}`;
-                    const response = await fetch(url);
+                    // FDA API URL 구성
+                    const baseUrl = 'https://api.fda.gov/drug/label.json';
+                    const params = new URLSearchParams({
+                        search: query,
+                        limit: limit.toString()
+                    });
+                    const url = `${baseUrl}?${params.toString()}`;
+                    
+                    console.log('📡 FDA API 요청 URL:', url);
+                    
+                    // FDA API 호출 (CORS 및 에러 처리 강화)
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        mode: 'cors', // CORS 모드 명시
+                        cache: 'default'
+                    });
+                    
+                    console.log('📡 FDA API 응답 상태:', response.status, response.statusText);
                     
                     if (response.ok) {
                         const data = await response.json();
+                        console.log('✅ FDA API 응답 데이터:', data);
+                        
                         if (data.results && data.results.length > 0) {
                             // FDA 결과에 소스 마킹 추가
                             const markedResults = data.results.map(result => ({
@@ -1767,23 +1794,100 @@ const utils = {
                                 _korean_info: this.findKoreanInfo(result)
                             }));
                             allResults = allResults.concat(markedResults);
+                            console.log(`✅ FDA에서 ${markedResults.length}개 결과 추가`);
+                        } else {
+                            console.log('ℹ️ FDA API 응답에 결과 없음');
+                        }
+                    } else {
+                        // HTTP 에러 상세 정보
+                        const errorText = await response.text();
+                        console.error(`❌ FDA API HTTP 에러 (${response.status}):`, errorText);
+                        
+                        if (response.status === 404) {
+                            console.log('ℹ️ FDA API: 해당 약물 정보를 찾을 수 없음');
+                        } else if (response.status === 429) {
+                            console.error('⚠️ FDA API: Rate limit 초과, 잠시 후 다시 시도');
+                            throw new Error('FDA API Rate limit exceeded');
+                        } else if (response.status >= 500) {
+                            console.error('⚠️ FDA API: 서버 오류 발생');
+                            throw new Error('FDA API Server error');
                         }
                     }
                     
                     if (allResults.length >= limit) break;
-                } catch (error) {
-                    console.warn(`FDA API query failed: ${query}`, error);
-                    continue;
+                } catch (fetchError) {
+                    console.error(`❌ FDA API 쿼리 실패 ("${query}"):`, fetchError);
+                    
+                    // CORS 에러인지 확인
+                    if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
+                        console.error('🚫 CORS 정책으로 인한 FDA API 접근 차단 가능성');
+                    }
+                    
+                    continue; // 다음 쿼리 시도
                 }
             }
+            
+            console.log(`🎯 FDA API 검색 완료: 총 ${allResults.length}개 결과`);
             
             return {
                 results: this.deduplicateAndSort({ results: allResults }, searchTerm).results
             };
         } catch (error) {
-            console.error('FDA API 호출 실패:', error);
+            console.error('💥 FDA API 호출 전체 실패:', error);
+            
+            // 사용자에게 친화적인 에러 메시지
+            if (error.message.includes('CORS') || error.message.includes('fetch')) {
+                console.warn('🔄 FDA API CORS 문제 감지, 로컬 데이터로 대체');
+                // CORS 문제인 경우 로컬 데이터로 대체
+                return this.searchLocalFallback(searchTerm, limit);
+            }
+            
             return { results: [] };
         }
+    },
+
+    // FDA API 대체 로컬 검색 (CORS 문제 시 사용)
+    searchLocalFallback(searchTerm, limit = 10) {
+        console.log('🔄 FDA API 대체 로컬 검색 시작:', searchTerm);
+        
+        // 영어 약물명 매핑에서 검색
+        const results = [];
+        const searchLower = searchTerm.toLowerCase();
+        
+        for (const [korean, english] of Object.entries(drugNameMapping)) {
+            const englishLower = english.toLowerCase();
+            
+            if (englishLower.includes(searchLower) || searchLower.includes(englishLower)) {
+                results.push({
+                    openfda: {
+                        brand_name: [english],
+                        generic_name: [english],
+                        manufacturer_name: ['International Manufacturer'],
+                        route: ['Oral'],
+                        substance_name: [english]
+                    },
+                    description: [`${english} is an internationally recognized medication. For detailed information, consult healthcare professionals.`],
+                    indications_and_usage: ['Consult healthcare professionals for proper usage.'],
+                    warnings: ['Consult healthcare professionals before use.'],
+                    dosage_and_administration: ['Follow healthcare professional guidance.'],
+                    drug_interactions: ['Check with healthcare professionals for interactions.'],
+                    source: 'fda-fallback',
+                    _korean_info: {
+                        koreanName: korean,
+                        englishName: english,
+                        category: '의약품',
+                        manufacturer: 'International',
+                        description: `${english}는 국제적으로 인정받는 의약품입니다. 상세 정보는 의료진과 상담하세요.`
+                    }
+                });
+            }
+        }
+        
+        console.log(`📋 로컬 대체 검색 결과: ${results.length}개`);
+        
+        return {
+            results: results.slice(0, limit)
+        };
     },
 
     // 통합 검색 함수
@@ -1791,11 +1895,18 @@ const utils = {
         const isKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(searchTerm);
         
         try {
-            // 병렬로 두 API 호출
-            const [fdaResults, mfdsResults] = await Promise.allSettled([
-                this.searchFDA(searchTerm, Math.ceil(limit / 2)),
+            // 병렬로 두 API 호출 (타임아웃 설정)
+            const searchPromises = [
+                Promise.race([
+                    this.searchFDA(searchTerm, Math.ceil(limit / 2)),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('FDA API timeout')), 5000)
+                    )
+                ]),
                 this.searchMFDS(searchTerm, Math.ceil(limit / 2))
-            ]);
+            ];
+            
+            const [fdaResults, mfdsResults] = await Promise.allSettled(searchPromises);
             
             let combinedResults = [];
             
@@ -1806,6 +1917,12 @@ const utils = {
                     source: 'fda',
                     sourceLabel: 'FDA Database'
                 })));
+            } else if (fdaResults.status === 'rejected') {
+                console.warn('FDA API 검색 실패:', fdaResults.reason?.message);
+                // FDA API 실패를 개발자 모드에서 로깅
+                if (state.developerMode) {
+                    utils.logToDevConsole(`⚠️ FDA API 실패: ${fdaResults.reason?.message}`, 'warning');
+                }
             }
             
             // MFDS 결과 처리
@@ -1838,6 +1955,11 @@ const utils = {
                 sources: {
                     fda: fdaResults.status === 'fulfilled' ? fdaResults.value.results?.length || 0 : 0,
                     mfds: mfdsResults.status === 'fulfilled' ? mfdsResults.value.results?.length || 0 : 0
+                },
+                apiStatus: {
+                    fda: fdaResults.status === 'fulfilled' ? 'success' : 'failed',
+                    fdaError: fdaResults.status === 'rejected' ? fdaResults.reason?.message : null,
+                    mfds: mfdsResults.status === 'fulfilled' ? 'success' : 'failed'
                 }
             };
         } catch (error) {
@@ -2058,9 +2180,17 @@ async function searchDrug(query = null) {
         // 검색 소스 정보 추가
         const sourceInfo = combinedResults.sources ? `
             <div class="search-source-info">
-                <span class="source-badge fda">🇺🇸 FDA: ${combinedResults.sources.fda}개</span>
+                <span class="source-badge fda ${combinedResults.apiStatus?.fda === 'failed' ? 'api-failed' : ''}">
+                    🇺🇸 FDA: ${combinedResults.sources.fda}개
+                    ${combinedResults.apiStatus?.fda === 'failed' ? ' ⚠️' : ''}
+                </span>
                 <span class="source-badge mfds">🇰🇷 MFDS: ${combinedResults.sources.mfds}개</span>
                 <span class="total-results">총 ${combinedResults.results.length}개 결과</span>
+                ${combinedResults.apiStatus?.fdaError ? `
+                    <div class="api-status-warning">
+                        <small>⚠️ FDA API: ${combinedResults.apiStatus.fdaError.includes('CORS') ? 'CORS 제한으로 로컬 데이터 사용' : combinedResults.apiStatus.fdaError}</small>
+                    </div>
+                ` : ''}
             </div>
         ` : '';
         
@@ -3592,6 +3722,103 @@ const devTools = {
         } catch (error) {
             utils.logToDevConsole(`❌ Performance test failed: ${error.message}`, 'error');
         }
+    },
+
+    // FDA API 상태 테스트
+    async testFDAAPI() {
+        utils.logToDevConsole('🔬 FDA API 연결 테스트 시작...', 'info');
+        
+        try {
+            // 간단한 테스트 쿼리
+            const testQuery = 'aspirin';
+            const url = `https://api.fda.gov/drug/label.json?search=openfda.brand_name:"${testQuery}"&limit=1`;
+            
+            utils.logToDevConsole(`📡 FDA API 테스트 URL: ${url}`, 'info');
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                mode: 'cors'
+            });
+            
+            utils.logToDevConsole(`📊 FDA API 응답: ${response.status} ${response.statusText}`, 'info');
+            
+            if (response.ok) {
+                const data = await response.json();
+                utils.logToDevConsole(`✅ FDA API 연결 성공! 결과: ${data.results?.length || 0}개`, 'success');
+                return { success: true, data: data };
+            } else {
+                const errorText = await response.text();
+                utils.logToDevConsole(`❌ FDA API HTTP 오류: ${response.status} - ${errorText}`, 'error');
+                return { success: false, error: `HTTP ${response.status}: ${errorText}` };
+            }
+        } catch (error) {
+            utils.logToDevConsole(`💥 FDA API 테스트 실패: ${error.message}`, 'error');
+            
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                utils.logToDevConsole('🚫 CORS 정책으로 인한 FDA API 접근 제한 감지', 'warning');
+                return { success: false, error: 'CORS_BLOCKED', message: 'CORS policy blocks direct access' };
+            } else {
+                return { success: false, error: error.message };
+            }
+        }
+    },
+
+    // 전체 데이터베이스 연결 테스트
+    async testAllDatabases() {
+        utils.logToDevConsole('🌐 모든 데이터베이스 연결 테스트 시작...', 'info');
+        
+        const results = {
+            fda: null,
+            mfds: null,
+            local: null
+        };
+        
+        // FDA API 테스트
+        try {
+            results.fda = await this.testFDAAPI();
+        } catch (error) {
+            results.fda = { success: false, error: error.message };
+        }
+        
+        // MFDS 로컬 데이터 테스트
+        try {
+            const mfdsResult = await utils.searchKoreanDrugs('아스피린', 1);
+            results.mfds = { 
+                success: mfdsResult.results.length > 0, 
+                data: mfdsResult,
+                message: `${mfdsResult.results.length}개 한국 의약품 데이터 로드됨`
+            };
+            utils.logToDevConsole(`✅ MFDS 로컬 데이터: ${mfdsResult.results.length}개 결과`, 'success');
+        } catch (error) {
+            results.mfds = { success: false, error: error.message };
+            utils.logToDevConsole(`❌ MFDS 로컬 데이터 테스트 실패: ${error.message}`, 'error');
+        }
+        
+        // 로컬 약물명 매핑 테스트
+        try {
+            const mappingCount = Object.keys(drugNameMapping).length;
+            results.local = {
+                success: mappingCount > 0,
+                data: { count: mappingCount },
+                message: `${mappingCount}개 약물명 매핑 로드됨`
+            };
+            utils.logToDevConsole(`✅ 로컬 약물명 매핑: ${mappingCount}개`, 'success');
+        } catch (error) {
+            results.local = { success: false, error: error.message };
+            utils.logToDevConsole(`❌ 로컬 데이터 테스트 실패: ${error.message}`, 'error');
+        }
+        
+        // 통합 테스트 결과 출력
+        const successCount = Object.values(results).filter(r => r?.success).length;
+        const totalCount = Object.keys(results).length;
+        
+        utils.logToDevConsole(`🎯 데이터베이스 테스트 완료: ${successCount}/${totalCount} 성공`, 
+            successCount === totalCount ? 'success' : 'warning');
+        
+        return results;
     }
 };
 
