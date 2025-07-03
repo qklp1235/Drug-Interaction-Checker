@@ -1952,6 +1952,7 @@ body.scrolling .container::after {
 
     .container {
         padding: 1rem;
+        z-index: 100;
     }
 
     .header h1 {
