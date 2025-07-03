@@ -1,23 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "."
-      }
-    }
-  ],
   "routes": [
-    {
-      "src": "/ko-kr/(.*)",
-      "dest": "/ko-kr/$1"
-    },
-    {
-      "src": "/us-en/(.*)",
-      "dest": "/us-en/$1"
-    },
     {
       "src": "/korean",
       "dest": "/ko-kr/index.html"
@@ -27,8 +9,12 @@
       "dest": "/us-en/index.html"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "/ko-kr/(.*)",
+      "dest": "/ko-kr/$1"
+    },
+    {
+      "src": "/us-en/(.*)",
+      "dest": "/us-en/$1"
     }
   ],
   "headers": [

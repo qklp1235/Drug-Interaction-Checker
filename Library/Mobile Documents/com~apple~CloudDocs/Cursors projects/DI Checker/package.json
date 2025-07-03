@@ -4,8 +4,6 @@
   "description": "AI-powered drug interaction checker with Korean and English support",
   "main": "index.html",
   "scripts": {
-    "build": "echo 'Static site - no build needed'",
-    "start": "python -m http.server 8000",
     "dev": "python -m http.server 8000"
   },
   "keywords": [
