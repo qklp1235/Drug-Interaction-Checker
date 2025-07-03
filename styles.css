@@ -514,7 +514,7 @@ body.scrolling .container::after {
     visibility: hidden;
     transform: translateY(-10px);
     transition: var(--scroll-transition);
-    z-index: 1000;
+    z-index: 50000;
     scroll-behavior: smooth;
 }
 
@@ -580,7 +580,7 @@ body.scrolling .container::after {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-    z-index: 10000 !important;
+    z-index: 50000 !important;
 }
 
 .drug-item {

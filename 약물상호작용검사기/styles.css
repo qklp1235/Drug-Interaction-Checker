@@ -516,9 +516,8 @@ body.scrolling .container::after {
     visibility: hidden;
     transform: translateY(-10px);
     transition: var(--scroll-transition);
-    z-index: 1000;
+    z-index: 50000;
     scroll-behavior: smooth;
-    z-index: 100;
 }
 
 /* 약물 리스트 스크롤 그라데이션 */
@@ -530,13 +529,12 @@ body.scrolling .container::after {
     right: 0;
     height: 15px;
     background: linear-gradient(to bottom, var(--surface) 0%, rgba(255, 255, 255, 0.8) 70%, transparent 100%);
-    z-index: 1000;
+    z-index: 10;
     pointer-events: none;
     margin-bottom: -15px;
     border-radius: var(--radius) var(--radius) 0 0;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-    z-index: 100;
 }
 
 .drug-list::after {
@@ -553,7 +551,6 @@ body.scrolling .container::after {
     border-radius: 0 0 var(--radius) var(--radius);
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-    z-index: 100;
 }
 
 /* 스크롤 중일 때 그라데이션 표시 */
@@ -585,7 +582,7 @@ body.scrolling .container::after {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-    z-index: 10000 !important;
+    z-index: 50000 !important;
 }
 
 .drug-item {
