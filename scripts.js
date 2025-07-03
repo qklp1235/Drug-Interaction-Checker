@@ -1788,8 +1788,27 @@ async function checkInteraction() {
             interactions2.toLowerCase().includes(drug1.toLowerCase());
 
         // Display result
+        console.log('🔍 Result section display start');
+        console.log('resultSection:', resultSection);
+        console.log('resultDiv:', resultDiv);
+        
+        if (!resultSection) {
+            console.error('❌ resultSection not found');
+            alert('System error: Result section not found.');
+            return;
+        }
+        
+        if (!resultDiv) {
+            console.error('❌ resultDiv not found');
+            alert('System error: Result area not found.');
+            return;
+        }
+        
         resultSection.style.display = 'block';
+        resultSection.style.visibility = 'visible';
+        resultSection.style.opacity = '1';
         resultSection.classList.remove('scroll-visible'); // 애니메이션 리셋
+        console.log('✅ Result section display setup complete');
         
         // Try AI analysis
         let aiAnalysis = null;
@@ -1944,6 +1963,8 @@ async function checkInteraction() {
     } catch (error) {
         console.error('Interaction check error:', error);
         resultSection.style.display = 'block';
+        resultSection.style.visibility = 'visible';
+        resultSection.style.opacity = '1';
         resultDiv.innerHTML = `
             <div class="result-card result-warning scroll-scale">
                 <div class="result-header">

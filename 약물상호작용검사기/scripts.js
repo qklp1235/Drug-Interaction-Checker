@@ -2731,8 +2731,27 @@ async function checkInteraction() {
         }
         
         // Display result
+        console.log('🔍 결과 섹션 표시 시작');
+        console.log('resultSection:', resultSection);
+        console.log('resultDiv:', resultDiv);
+        
+        if (!resultSection) {
+            console.error('❌ resultSection을 찾을 수 없습니다');
+            utils.showAlert('시스템 오류: 결과 섹션을 찾을 수 없습니다.', 'warning');
+            return;
+        }
+        
+        if (!resultDiv) {
+            console.error('❌ resultDiv를 찾을 수 없습니다');
+            utils.showAlert('시스템 오류: 결과 영역을 찾을 수 없습니다.', 'warning');
+            return;
+        }
+        
         resultSection.style.display = 'block';
+        resultSection.style.visibility = 'visible';
+        resultSection.style.opacity = '1';
         resultSection.classList.remove('scroll-visible'); // 애니메이션 리셋
+        console.log('✅ 결과 섹션 표시 설정 완료');
         
         // Try AI analysis
         let aiAnalysis = null;
@@ -2899,6 +2918,8 @@ async function checkInteraction() {
     } catch (error) {
         console.error('Interaction check error:', error);
         resultSection.style.display = 'block';
+        resultSection.style.visibility = 'visible';
+        resultSection.style.opacity = '1';
         
         // 에러 메시지를 HTML에서 안전하게 표시
         const errorMessage = error.message || '알 수 없는 오류가 발생했습니다.';

@@ -1225,11 +1225,14 @@ body.scrolling .container::after {
 /* 결과 섹션 */
 .result-section {
     display: none;
+    visibility: hidden;
+    opacity: 0;
     animation: fadeIn 0.5s ease;
     max-height: 80vh;
     overflow-y: auto;
     scroll-behavior: smooth;
     position: relative;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
     /* 기본 상태에서도 부드러운 마스크 적용 */
     mask: 
         linear-gradient(to bottom, 
@@ -1245,7 +1248,7 @@ body.scrolling .container::after {
             rgba(0, 0, 0, 0.98) 100%);
     mask-mode: alpha;
     -webkit-mask-mode: alpha;
-    transition: mask 1.4s cubic-bezier(0.16, 1, 0.3, 1), -webkit-mask 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: mask 1.4s cubic-bezier(0.16, 1, 0.3, 1), -webkit-mask 1.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, visibility 0.3s ease;
 }
 
 /* 호버 시 중간 단계 마스크 */

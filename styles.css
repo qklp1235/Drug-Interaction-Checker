@@ -1188,11 +1188,14 @@ body.scrolling .container::after {
 /* 결과 섹션 */
 .result-section {
     display: none;
+    visibility: hidden;
+    opacity: 0;
     animation: fadeIn 0.5s ease;
     max-height: 80vh;
     overflow-y: auto;
     scroll-behavior: smooth;
     position: relative;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 /* 결과 섹션 스크롤 그라데이션 */
