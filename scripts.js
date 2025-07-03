@@ -1682,13 +1682,35 @@ function selectDrug(inputId, drugName) {
 function isValidDrugName(drugName) {
     if (!drugName) return false;
     const lower = drugName.trim().toLowerCase();
-    // 영문/한글 모두 매핑에 있으면 OK
+    // 매핑에 있으면 OK, 또는 2글자 이상이면 FDA API에서 검색 가능
     return (
-        ENGLISH_DRUG_DATABASE[drugName] ||
-        Object.keys(ENGLISH_DRUG_DATABASE).some(k => k.toLowerCase() === lower) ||
         Object.values(drugNameMapping).some(v => v.toLowerCase() === lower) ||
-        Object.keys(drugNameMapping).some(k => k.toLowerCase() === lower)
+        Object.keys(drugNameMapping).some(k => k.toLowerCase() === lower) ||
+        drugName.trim().length >= 2
     );
+}
+
+// 두 약물 모두 입력 완료 확인 함수 (debounce 적용)
+const debouncedCheckBothDrugs = utils.debounce(function() {
+    const drug1Element = document.getElementById('drug1');
+    const drug2Element = document.getElementById('drug2');
+    
+    if (drug1Element && drug1Element.value.trim() && drug2Element && drug2Element.value.trim()) {
+        // 이미 확인 메시지가 표시되었는지 확인 (중복 방지)
+        if (!window.interactionCheckShown) {
+            window.interactionCheckShown = true;
+            const shouldProceed = confirm('Would you like to check the interaction between these two drugs?');
+            if (shouldProceed) {
+                checkInteraction();
+            }
+            // 확인 후 플래그 리셋
+            window.interactionCheckShown = false;
+        }
+    }
+}, 1500); // 1.5초 동안 타이핑이 없으면 실행
+
+function checkBothDrugsEntered() {
+    debouncedCheckBothDrugs();
 }
 
 // checkInteraction 수정: 입력값이 유효한 약물명일 때만 검사
@@ -2477,10 +2499,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Drug selection input event
     document.getElementById('drug1').addEventListener('input', function() {
         drugSearchHandler('drug1', 1);
+        checkBothDrugsEntered();
     });
 
     document.getElementById('drug2').addEventListener('input', function() {
         drugSearchHandler('drug2', 2);
+        checkBothDrugsEntered();
+    });
+
+    // 약물 입력 필드에서 Enter 키 처리
+    document.getElementById('drug1').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const drug2Element = document.getElementById('drug2');
+            if (drug2Element) {
+                drug2Element.focus();
+            }
+        }
+    });
+
+    document.getElementById('drug2').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkBothDrugsEntered();
+        }
     });
 
     // Close dropdown when clicking outside
