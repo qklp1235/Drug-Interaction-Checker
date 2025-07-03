@@ -1729,6 +1729,83 @@ body.scrolling .container::after {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/* 검색 소스 정보 */
+.search-source-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--secondary-rgb), 0.1));
+    border-radius: 12px;
+    border: 1px solid rgba(var(--primary-rgb), 0.2);
+    flex-wrap: wrap;
+}
+
+.source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.source-badge.fda {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+}
+
+.source-badge.mfds {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+}
+
+.total-results {
+    color: var(--text);
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* 작은 소스 배지 */
+.source-badge-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.source-badge-small.fda-badge {
+    background: rgba(59, 130, 246, 0.15);
+    color: #1e40af;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.source-badge-small.mfds-badge {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* 다크모드에서 소스 배지 */
+[data-theme="dark"] .source-badge-small.fda-badge {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+[data-theme="dark"] .source-badge-small.mfds-badge {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
 /* 알림 */
 .alert {
     position: fixed;
