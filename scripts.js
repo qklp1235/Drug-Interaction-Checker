@@ -1031,8 +1031,6 @@ const utils = {
                         <button onclick="devTools.clearStorage()" class="dev-btn">Clear Storage</button>
                         <button onclick="devTools.exportLogs()" class="dev-btn">Export Logs</button>
                         <button onclick="devTools.testAllAPIs()" class="dev-btn">Test APIs</button>
-                        <button onclick="devTools.testFDAAPI()" class="dev-btn">Test FDA API</button>
-                        <button onclick="devTools.testAllDatabases()" class="dev-btn">Test Databases</button>
                         <button onclick="devTools.showDebugInfo()" class="dev-btn">Debug Info</button>
                         <button onclick="devTools.performanceTest()" class="dev-btn">Performance</button>
                     </div>
@@ -1654,372 +1652,6 @@ const utils = {
         }
     },
 
-    // MFDS API 호출 함수
-    async searchMFDS(searchTerm, limit = 10) {
-        try {
-            // MFDS API는 CORS 정책으로 직접 호출이 제한될 수 있으므로 
-            // 대체 방법으로 한국 의약품 데이터베이스 검색
-            const koreanResults = this.searchKoreanDrugs(searchTerm, limit);
-            
-            // 실제 MFDS API 호출 (프록시 서버 필요시)
-            /*
-            const response = await fetch(`${API_CONFIGS.mfds.searchUrl}?drugNm=${encodeURIComponent(searchTerm)}&pageNo=1&numOfRows=${limit}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`MFDS API error: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            return this.processMFDSResults(data);
-            */
-            
-            return koreanResults;
-        } catch (error) {
-            console.warn('MFDS API 호출 실패, 로컬 한국 의약품 데이터 사용:', error);
-            return this.searchKoreanDrugs(searchTerm, limit);
-        }
-    },
-
-    // 한국 의약품 데이터베이스 검색
-    searchKoreanDrugs(searchTerm, limit = 10) {
-        const results = [];
-        const searchLower = searchTerm.toLowerCase();
-        
-        // 한국 의약품 데이터베이스에서 검색
-        for (const [koreanName, englishName] of Object.entries(drugNameMapping)) {
-            const koreanLower = koreanName.toLowerCase();
-            const englishLower = englishName.toLowerCase();
-            
-            let score = 0;
-            let matchType = '';
-            
-            // 정확한 매치
-            if (koreanLower === searchLower || englishLower === searchLower) {
-                score = 100;
-                matchType = 'exact';
-            }
-            // 시작 부분 매치
-            else if (koreanLower.startsWith(searchLower) || englishLower.startsWith(searchLower)) {
-                score = 90;
-                matchType = 'prefix';
-            }
-            // 포함 매치
-            else if (koreanLower.includes(searchLower) || englishLower.includes(searchLower)) {
-                score = 80;
-                matchType = 'contains';
-            }
-            
-            if (score > 0) {
-                results.push({
-                    koreanName: koreanName,
-                    englishName: englishName,
-                    score: score,
-                    matchType: matchType,
-                    source: 'mfds',
-                    openfda: {
-                        brand_name: [koreanName],
-                        generic_name: [englishName],
-                        manufacturer_name: ['한국 제약회사'],
-                        route: ['경구'],
-                        substance_name: [englishName]
-                    },
-                    description: [`${koreanName}(${englishName})은 한국에서 승인된 의약품입니다.`],
-                    _korean_info: {
-                        koreanName: koreanName,
-                        englishName: englishName,
-                        category: '전문의약품',
-                        manufacturer: '한국 제약회사',
-                        description: `${koreanName}는 ${englishName}의 한국명으로, 식품의약품안전처에서 허가받은 의약품입니다.`
-                    }
-                });
-            }
-        }
-        
-        return {
-            results: results
-                .sort((a, b) => b.score - a.score)
-                .slice(0, limit)
-        };
-    },
-
-    // FDA API 호출 함수 (기존 기능 개선)
-    async searchFDA(searchTerm, limit = 10) {
-        try {
-            // FDA API 호출 전 디버깅 로그
-            console.log('🇺🇸 FDA API 검색 시작:', searchTerm);
-            
-            const queries = this.generateFlexibleQueries(searchTerm);
-            let allResults = [];
-            
-            for (const query of queries) {
-                try {
-                    // FDA API URL 구성
-                    const baseUrl = 'https://api.fda.gov/drug/label.json';
-                    const params = new URLSearchParams({
-                        search: query,
-                        limit: limit.toString()
-                    });
-                    const url = `${baseUrl}?${params.toString()}`;
-                    
-                    console.log('📡 FDA API 요청 URL:', url);
-                    
-                    // FDA API 호출 (CORS 및 에러 처리 강화)
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        mode: 'cors', // CORS 모드 명시
-                        cache: 'default'
-                    });
-                    
-                    console.log('📡 FDA API 응답 상태:', response.status, response.statusText);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('✅ FDA API 응답 데이터:', data);
-                        
-                        if (data.results && data.results.length > 0) {
-                            // FDA 결과에 소스 마킹 추가
-                            const markedResults = data.results.map(result => ({
-                                ...result,
-                                source: 'fda',
-                                _korean_info: this.findKoreanInfo(result)
-                            }));
-                            allResults = allResults.concat(markedResults);
-                            console.log(`✅ FDA에서 ${markedResults.length}개 결과 추가`);
-                        } else {
-                            console.log('ℹ️ FDA API 응답에 결과 없음');
-                        }
-                    } else {
-                        // HTTP 에러 상세 정보
-                        const errorText = await response.text();
-                        console.error(`❌ FDA API HTTP 에러 (${response.status}):`, errorText);
-                        
-                        if (response.status === 404) {
-                            console.log('ℹ️ FDA API: 해당 약물 정보를 찾을 수 없음');
-                        } else if (response.status === 429) {
-                            console.error('⚠️ FDA API: Rate limit 초과, 잠시 후 다시 시도');
-                            throw new Error('FDA API Rate limit exceeded');
-                        } else if (response.status >= 500) {
-                            console.error('⚠️ FDA API: 서버 오류 발생');
-                            throw new Error('FDA API Server error');
-                        }
-                    }
-                    
-                    if (allResults.length >= limit) break;
-                } catch (fetchError) {
-                    console.error(`❌ FDA API 쿼리 실패 ("${query}"):`, fetchError);
-                    
-                    // CORS 에러인지 확인
-                    if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
-                        console.error('🚫 CORS 정책으로 인한 FDA API 접근 차단 가능성');
-                    }
-                    
-                    continue; // 다음 쿼리 시도
-                }
-            }
-            
-            console.log(`🎯 FDA API 검색 완료: 총 ${allResults.length}개 결과`);
-            
-            return {
-                results: this.deduplicateAndSort({ results: allResults }, searchTerm).results
-            };
-        } catch (error) {
-            console.error('💥 FDA API 호출 전체 실패:', error);
-            
-            // 사용자에게 친화적인 에러 메시지
-            if (error.message.includes('CORS') || error.message.includes('fetch')) {
-                console.warn('🔄 FDA API CORS 문제 감지, 로컬 데이터로 대체');
-                // CORS 문제인 경우 로컬 데이터로 대체
-                return this.searchLocalFallback(searchTerm, limit);
-            }
-            
-            return { results: [] };
-        }
-    },
-
-    // FDA API 대체 로컬 검색 (CORS 문제 시 사용)
-    searchLocalFallback(searchTerm, limit = 10) {
-        console.log('🔄 FDA API 대체 로컬 검색 시작:', searchTerm);
-        
-        // 영어 약물명 매핑에서 검색
-        const results = [];
-        const searchLower = searchTerm.toLowerCase();
-        
-        for (const [korean, english] of Object.entries(drugNameMapping)) {
-            const englishLower = english.toLowerCase();
-            
-            if (englishLower.includes(searchLower) || searchLower.includes(englishLower)) {
-                results.push({
-                    openfda: {
-                        brand_name: [english],
-                        generic_name: [english],
-                        manufacturer_name: ['International Manufacturer'],
-                        route: ['Oral'],
-                        substance_name: [english]
-                    },
-                    description: [`${english} is an internationally recognized medication. For detailed information, consult healthcare professionals.`],
-                    indications_and_usage: ['Consult healthcare professionals for proper usage.'],
-                    warnings: ['Consult healthcare professionals before use.'],
-                    dosage_and_administration: ['Follow healthcare professional guidance.'],
-                    drug_interactions: ['Check with healthcare professionals for interactions.'],
-                    source: 'fda-fallback',
-                    _korean_info: {
-                        koreanName: korean,
-                        englishName: english,
-                        category: '의약품',
-                        manufacturer: 'International',
-                        description: `${english}는 국제적으로 인정받는 의약품입니다. 상세 정보는 의료진과 상담하세요.`
-                    }
-                });
-            }
-        }
-        
-        console.log(`📋 로컬 대체 검색 결과: ${results.length}개`);
-        
-        return {
-            results: results.slice(0, limit)
-        };
-    },
-
-    // 통합 검색 함수
-    async searchIntegrated(searchTerm, limit = 15) {
-        const isKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(searchTerm);
-        
-        try {
-            // 병렬로 두 API 호출 (타임아웃 설정)
-            const searchPromises = [
-                Promise.race([
-                    this.searchFDA(searchTerm, Math.ceil(limit / 2)),
-                    new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('FDA API timeout')), 5000)
-                    )
-                ]),
-                this.searchMFDS(searchTerm, Math.ceil(limit / 2))
-            ];
-            
-            const [fdaResults, mfdsResults] = await Promise.allSettled(searchPromises);
-            
-            let combinedResults = [];
-            
-            // FDA 결과 처리
-            if (fdaResults.status === 'fulfilled' && fdaResults.value.results) {
-                combinedResults = combinedResults.concat(fdaResults.value.results.map(result => ({
-                    ...result,
-                    source: 'fda',
-                    sourceLabel: 'FDA Database'
-                })));
-            } else if (fdaResults.status === 'rejected') {
-                console.warn('FDA API 검색 실패:', fdaResults.reason?.message);
-                // FDA API 실패를 개발자 모드에서 로깅
-                if (state.developerMode) {
-                    utils.logToDevConsole(`⚠️ FDA API 실패: ${fdaResults.reason?.message}`, 'warning');
-                }
-            }
-            
-            // MFDS 결과 처리
-            if (mfdsResults.status === 'fulfilled' && mfdsResults.value.results) {
-                combinedResults = combinedResults.concat(mfdsResults.value.results.map(result => ({
-                    ...result,
-                    source: 'mfds',
-                    sourceLabel: 'MFDS 의약품안전나라'
-                })));
-            }
-            
-            // 한국어 검색인 경우 MFDS 결과 우선, 영어 검색인 경우 FDA 결과 우선
-            combinedResults.sort((a, b) => {
-                if (isKorean) {
-                    if (a.source === 'mfds' && b.source === 'fda') return -1;
-                    if (a.source === 'fda' && b.source === 'mfds') return 1;
-                } else {
-                    if (a.source === 'fda' && b.source === 'mfds') return -1;
-                    if (a.source === 'mfds' && b.source === 'fda') return 1;
-                }
-                
-                // 점수로 정렬
-                const scoreA = a.score || this.calculateRelevanceScore(a, searchTerm);
-                const scoreB = b.score || this.calculateRelevanceScore(b, searchTerm);
-                return scoreB - scoreA;
-            });
-            
-            return {
-                results: combinedResults.slice(0, limit),
-                sources: {
-                    fda: fdaResults.status === 'fulfilled' ? fdaResults.value.results?.length || 0 : 0,
-                    mfds: mfdsResults.status === 'fulfilled' ? mfdsResults.value.results?.length || 0 : 0
-                },
-                apiStatus: {
-                    fda: fdaResults.status === 'fulfilled' ? 'success' : 'failed',
-                    fdaError: fdaResults.status === 'rejected' ? fdaResults.reason?.message : null,
-                    mfds: mfdsResults.status === 'fulfilled' ? 'success' : 'failed'
-                }
-            };
-        } catch (error) {
-            console.error('통합 검색 실패:', error);
-            // 폴백으로 FDA만 검색
-            return await this.searchFDA(searchTerm, limit);
-        }
-    },
-
-    // 한국 의약품 정보 찾기
-    findKoreanInfo(fdaResult) {
-        if (!fdaResult.openfda) return null;
-        
-        const brandNames = fdaResult.openfda.brand_name || [];
-        const genericNames = fdaResult.openfda.generic_name || [];
-        
-        for (const name of [...brandNames, ...genericNames]) {
-            const koreanName = Object.keys(drugNameMapping).find(
-                korean => drugNameMapping[korean].toLowerCase() === name.toLowerCase()
-            );
-            
-            if (koreanName) {
-                return {
-                    koreanName: koreanName,
-                    englishName: name,
-                    category: '전문의약품',
-                    manufacturer: fdaResult.openfda.manufacturer_name?.[0] || 'Unknown',
-                    description: `${koreanName}는 ${name}의 한국명입니다.`
-                };
-            }
-        }
-        
-        return null;
-    },
-
-    // 관련성 점수 계산
-    calculateRelevanceScore(result, searchTerm) {
-        if (!result.openfda) return 0;
-        
-        const searchLower = searchTerm.toLowerCase();
-        const brandNames = result.openfda.brand_name || [];
-        const genericNames = result.openfda.generic_name || [];
-        
-        let maxScore = 0;
-        
-        [...brandNames, ...genericNames].forEach(name => {
-            const nameLower = name.toLowerCase();
-            let score = 0;
-            
-            if (nameLower === searchLower) score = 100;
-            else if (nameLower.startsWith(searchLower)) score = 90;
-            else if (nameLower.includes(searchLower)) score = 80;
-            else score = this.calculateSimilarity(nameLower, searchLower) * 70;
-            
-            maxScore = Math.max(maxScore, score);
-        });
-        
-        return maxScore;
-    },
-
     // Drug interaction AI analysis
     async analyzeInteraction(drug1, drug2, interactions1, interactions2, drug1Info, drug2Info) {
         // 한국 의약품 상호작용 데이터베이스에서 기존 상호작용 확인
@@ -2160,41 +1792,121 @@ async function searchDrug(query = null) {
             return;
         }
 
-        // 통합 검색 실행 (FDA + MFDS)
-        if (state.developerMode) {
-            utils.logToDevConsole(`🔄 Converted: "${SecurityUtils.escapeHtml(searchInput)}" → "${SecurityUtils.escapeHtml(searchQuery)}"`, 'info');
-            utils.logToDevConsole(`🌐 Starting integrated search (FDA + MFDS)`, 'info');
-        }
-
-        // 통합 검색 수행
-        let combinedResults = await utils.searchIntegrated(searchQuery, 20);
+        // Flexible search query generation
+        const flexibleQueries = utils.generateFlexibleQueries(searchQuery);
+        let combinedResults = { results: [] };
         
         if (state.developerMode) {
-            const fdaCount = combinedResults.sources?.fda || 0;
-            const mfdsCount = combinedResults.sources?.mfds || 0;
-            utils.logToDevConsole(`✅ Integrated search completed: FDA(${fdaCount}) + MFDS(${mfdsCount}) = ${combinedResults.results.length} total`, 'success');
+            utils.logToDevConsole(`🔄 Converted: "${SecurityUtils.escapeHtml(searchInput)}" → "${SecurityUtils.escapeHtml(searchQuery)}"`, 'info');
+            utils.logToDevConsole(`📋 Generated ${flexibleQueries.length} search queries`, 'info');
         }
+
+        // 한국 의약품 데이터베이스에서 검색
+        const results = [];
+        
+        if (state.developerMode) {
+            utils.logToDevConsole(`🔍 Searching in Korean drug database for: "${searchQuery}"`, 'info');
+        }
+        
+        // 한국 의약품 데이터베이스에서 검색
+        for (const [drugName, drugInfo] of Object.entries(KOREAN_DRUG_DATABASE)) {
+            let relevanceScore = 0;
+            
+            // 약물명으로 검색
+            if (drugName.toLowerCase().includes(searchQuery.toLowerCase())) {
+                relevanceScore = 100;
+            } else if (drugInfo.englishName.toLowerCase().includes(searchQuery.toLowerCase())) {
+                relevanceScore = 90;
+            } else if (drugInfo.category.toLowerCase().includes(searchQuery.toLowerCase())) {
+                relevanceScore = 70;
+            } else if (drugInfo.manufacturer.toLowerCase().includes(searchQuery.toLowerCase())) {
+                relevanceScore = 60;
+            }
+            
+            if (relevanceScore > 0) {
+                results.push({
+                    openfda: {
+                        brand_name: [drugInfo.name],
+                        generic_name: [drugInfo.englishName],
+                        manufacturer_name: [drugInfo.manufacturer],
+                        route: [drugInfo.category]
+                    },
+                    description: [drugInfo.description],
+                    indications_and_usage: [drugInfo.indications],
+                    warnings: [drugInfo.warnings],
+                    dosage_and_administration: [drugInfo.dosage],
+                    drug_interactions: [drugInfo.interactions.join(', ')],
+                    _korean_info: drugInfo,
+                    _relevance: relevanceScore
+                });
+            }
+        }
+        
+        // 한영 약물명 매핑에서도 검색
+        for (const [korean, english] of Object.entries(drugNameMapping)) {
+            if (korean.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                english.toLowerCase().includes(searchQuery.toLowerCase())) {
+                
+                // 이미 결과에 있는지 확인
+                const exists = results.some(r => 
+                    r.openfda.brand_name[0] === korean || 
+                    r.openfda.generic_name[0] === english
+                );
+                
+                if (!exists) {
+                    const drugInfo = KOREAN_DRUG_DATABASE[korean];
+                    if (drugInfo) {
+                        results.push({
+                            openfda: {
+                                brand_name: [drugInfo.name],
+                                generic_name: [drugInfo.englishName],
+                                manufacturer_name: [drugInfo.manufacturer],
+                                route: [drugInfo.category]
+                            },
+                            description: [drugInfo.description],
+                            indications_and_usage: [drugInfo.indications],
+                            warnings: [drugInfo.warnings],
+                            dosage_and_administration: [drugInfo.dosage],
+                            drug_interactions: [drugInfo.interactions.join(', ')],
+                            _korean_info: drugInfo,
+                            _relevance: 80
+                        });
+                    } else {
+                        // 데이터베이스에 없는 경우 기본 정보만 제공
+                        results.push({
+                            openfda: {
+                                brand_name: [korean],
+                                generic_name: [english],
+                                manufacturer_name: ['정보 없음'],
+                                route: ['분류 정보 없음']
+                            },
+                            description: ['상세 정보를 위해 의사나 약사와 상담하세요.'],
+                            indications_and_usage: ['의사나 약사와 상담하세요.'],
+                            warnings: ['복용 전 의사나 약사와 상담하세요.'],
+                            dosage_and_administration: ['의사나 약사의 지시에 따라 복용하세요.'],
+                            drug_interactions: ['부작용 발생시 의사와 상담하세요.'],
+                            _relevance: 70
+                        });
+                    }
+                }
+            }
+        }
+        
+        // 관련성 점수로 정렬
+        results.sort((a, b) => (b._relevance || 0) - (a._relevance || 0));
+        
+        combinedResults.results = results.slice(0, 20);
+        
+        if (state.developerMode) {
+            utils.logToDevConsole(`✅ Found ${combinedResults.results.length} results in Korean database`, 'success');
+        }
+        
+        // Deduplicate and sort by relevance
+        combinedResults = utils.deduplicateAndSort(combinedResults, searchQuery);
         
         // Save to cache
         state.drugCache.set(cacheKey, combinedResults);
-        // 검색 소스 정보 추가
-        const sourceInfo = combinedResults.sources ? `
-            <div class="search-source-info">
-                <span class="source-badge fda ${combinedResults.apiStatus?.fda === 'failed' ? 'api-failed' : ''}">
-                    🇺🇸 FDA: ${combinedResults.sources.fda}개
-                    ${combinedResults.apiStatus?.fda === 'failed' ? ' ⚠️' : ''}
-                </span>
-                <span class="source-badge mfds">🇰🇷 MFDS: ${combinedResults.sources.mfds}개</span>
-                <span class="total-results">총 ${combinedResults.results.length}개 결과</span>
-                ${combinedResults.apiStatus?.fdaError ? `
-                    <div class="api-status-warning">
-                        <small>⚠️ FDA API: ${combinedResults.apiStatus.fdaError.includes('CORS') ? 'CORS 제한으로 로컬 데이터 사용' : combinedResults.apiStatus.fdaError}</small>
-                    </div>
-                ` : ''}
-            </div>
-        ` : '';
-        
-        displaySearchResults(combinedResults, sourceInfo);
+        displaySearchResults(combinedResults);
         
         utils.saveRecentSearch(searchInput);
         incrementSearchCount(); // 푸터 검색 카운트 증가
@@ -2238,8 +1950,8 @@ const realTimeSearchHandler = utils.debounce(async function() {
     await searchDrug(searchInput);
 }, 300);
 
-// Display search results (integrated FDA + MFDS results)
-function displaySearchResults(data, sourceInfo = '') {
+// Display search results (flexible search results included)
+function displaySearchResults(data) {
     const resultsDiv = document.getElementById('searchResultsContent');
     const searchContainer = document.getElementById('searchResults');
     const searchTerm = document.getElementById('drugSearch').value.trim().toLowerCase();
@@ -2317,33 +2029,17 @@ function displaySearchResults(data, sourceInfo = '') {
         .sort((a, b) => b.relevanceScore - a.relevanceScore)
         .slice(0, 12);
 
-    // 소스 정보가 있으면 먼저 표시
-    let htmlContent = sourceInfo ? sourceInfo : '';
-    
-    htmlContent += sortedDrugs.map((drug, index) => {
+    resultsDiv.innerHTML = sortedDrugs.map((drug, index) => {
         const isExactMatch = drug.relevanceScore >= 90;
         const matchIcon = isExactMatch ? '🎯' : drug.relevanceScore >= 80 ? '✨' : '🔍';
-        
-        // 소스 배지 생성
-        const sourceBadge = drug.drugData.source === 'fda' ? 
-            '<span class="source-badge-small fda-badge">🇺🇸 FDA</span>' : 
-            drug.drugData.source === 'mfds' ? 
-            '<span class="source-badge-small mfds-badge">🇰🇷 MFDS</span>' : '';
-        
-        // 한국 의약품 정보가 있으면 표시
-        const koreanInfo = drug.drugData._korean_info;
-        const displayName = koreanInfo ? 
-            `${drug.name} ${koreanInfo.englishName !== drug.name ? `(${koreanInfo.englishName})` : ''}` : 
-            drug.name;
         
         return `
             <div class="drug-item scroll-hidden scroll-delay-${Math.min(index % 4 + 1, 4)} ${isExactMatch ? 'exact-match' : ''}" 
                  onclick="showDrugDetail('${drug.name}', this)" 
                  data-drug='${JSON.stringify(drug.drugData).replace(/'/g, "&apos;")}'>
                 <div class="drug-item-name">
-                    ${matchIcon} ${displayName}
+                    ${matchIcon} ${drug.name}
                     ${index < 3 && drug.relevanceScore >= 80 ? '<span class="top-result">TOP</span>' : ''}
-                    ${sourceBadge}
                 </div>
                 <div class="drug-item-info">
                     ${drug.type} · ${drug.manufacturer}
@@ -2352,8 +2048,6 @@ function displaySearchResults(data, sourceInfo = '') {
             </div>
         `;
     }).join('');
-    
-    resultsDiv.innerHTML = htmlContent;
     
     // 새로 추가된 요소들에 애니메이션 적용
     setTimeout(() => {
@@ -3722,103 +3416,6 @@ const devTools = {
         } catch (error) {
             utils.logToDevConsole(`❌ Performance test failed: ${error.message}`, 'error');
         }
-    },
-
-    // FDA API 상태 테스트
-    async testFDAAPI() {
-        utils.logToDevConsole('🔬 FDA API 연결 테스트 시작...', 'info');
-        
-        try {
-            // 간단한 테스트 쿼리
-            const testQuery = 'aspirin';
-            const url = `https://api.fda.gov/drug/label.json?search=openfda.brand_name:"${testQuery}"&limit=1`;
-            
-            utils.logToDevConsole(`📡 FDA API 테스트 URL: ${url}`, 'info');
-            
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                mode: 'cors'
-            });
-            
-            utils.logToDevConsole(`📊 FDA API 응답: ${response.status} ${response.statusText}`, 'info');
-            
-            if (response.ok) {
-                const data = await response.json();
-                utils.logToDevConsole(`✅ FDA API 연결 성공! 결과: ${data.results?.length || 0}개`, 'success');
-                return { success: true, data: data };
-            } else {
-                const errorText = await response.text();
-                utils.logToDevConsole(`❌ FDA API HTTP 오류: ${response.status} - ${errorText}`, 'error');
-                return { success: false, error: `HTTP ${response.status}: ${errorText}` };
-            }
-        } catch (error) {
-            utils.logToDevConsole(`💥 FDA API 테스트 실패: ${error.message}`, 'error');
-            
-            if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                utils.logToDevConsole('🚫 CORS 정책으로 인한 FDA API 접근 제한 감지', 'warning');
-                return { success: false, error: 'CORS_BLOCKED', message: 'CORS policy blocks direct access' };
-            } else {
-                return { success: false, error: error.message };
-            }
-        }
-    },
-
-    // 전체 데이터베이스 연결 테스트
-    async testAllDatabases() {
-        utils.logToDevConsole('🌐 모든 데이터베이스 연결 테스트 시작...', 'info');
-        
-        const results = {
-            fda: null,
-            mfds: null,
-            local: null
-        };
-        
-        // FDA API 테스트
-        try {
-            results.fda = await this.testFDAAPI();
-        } catch (error) {
-            results.fda = { success: false, error: error.message };
-        }
-        
-        // MFDS 로컬 데이터 테스트
-        try {
-            const mfdsResult = await utils.searchKoreanDrugs('아스피린', 1);
-            results.mfds = { 
-                success: mfdsResult.results.length > 0, 
-                data: mfdsResult,
-                message: `${mfdsResult.results.length}개 한국 의약품 데이터 로드됨`
-            };
-            utils.logToDevConsole(`✅ MFDS 로컬 데이터: ${mfdsResult.results.length}개 결과`, 'success');
-        } catch (error) {
-            results.mfds = { success: false, error: error.message };
-            utils.logToDevConsole(`❌ MFDS 로컬 데이터 테스트 실패: ${error.message}`, 'error');
-        }
-        
-        // 로컬 약물명 매핑 테스트
-        try {
-            const mappingCount = Object.keys(drugNameMapping).length;
-            results.local = {
-                success: mappingCount > 0,
-                data: { count: mappingCount },
-                message: `${mappingCount}개 약물명 매핑 로드됨`
-            };
-            utils.logToDevConsole(`✅ 로컬 약물명 매핑: ${mappingCount}개`, 'success');
-        } catch (error) {
-            results.local = { success: false, error: error.message };
-            utils.logToDevConsole(`❌ 로컬 데이터 테스트 실패: ${error.message}`, 'error');
-        }
-        
-        // 통합 테스트 결과 출력
-        const successCount = Object.values(results).filter(r => r?.success).length;
-        const totalCount = Object.keys(results).length;
-        
-        utils.logToDevConsole(`🎯 데이터베이스 테스트 완료: ${successCount}/${totalCount} 성공`, 
-            successCount === totalCount ? 'success' : 'warning');
-        
-        return results;
     }
 };
 
@@ -4390,83 +3987,38 @@ function showTermsOfService() {
 
 // Data Sources 모달  
 function showDataSources() {
-    const modal = createInfoModal('통합 데이터 소스', `
+    const modal = createInfoModal('Data Sources', `
         <div style="line-height: 1.6; color: var(--text-secondary);">
-            <h4 style="color: var(--text); margin-bottom: 1rem;">🌐 통합 검색 시스템</h4>
+            <h4 style="color: var(--text); margin-bottom: 1rem;">📊 데이터 출처</h4>
             
-            <div style="margin-bottom: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--secondary-rgb), 0.05)); border-radius: 12px; border: 1px solid rgba(var(--primary-rgb), 0.2);">
-                <h5 style="color: var(--primary); margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <span>🔍</span> 실시간 통합 검색
-                </h5>
-                <p style="margin: 0.5rem 0; font-size: 0.9rem;">
-                    FDA와 MFDS 데이터베이스를 동시에 검색하여 국내외 의약품 정보를 통합 제공
-                </p>
-                <ul style="margin: 0.5rem 0 0 1rem; font-size: 0.85rem;">
-                    <li>한국어 검색 시 🇰🇷 MFDS 데이터 우선 표시</li>
-                    <li>영어 검색 시 🇺🇸 FDA 데이터 우선 표시</li>
-                    <li>병렬 검색으로 빠른 결과 제공</li>
-                    <li>중복 제거 및 관련성 기반 정렬</li>
-                </ul>
-            </div>
-            
-            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                🇺🇸 <span style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;">FDA</span> OpenFDA API
-            </h5>
+            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem;">주요 데이터베이스</h5>
             <div style="margin-bottom: 1rem;">
-                <span style="font-size: 0.9rem;">미국 식품의약국(FDA) 공식 의약품 정보 데이터베이스</span><br>
-                <ul style="margin: 0.5rem 0 0 1rem; font-size: 0.85rem;">
-                    <li>의약품 라벨 정보 (50만+ 제품)</li>
-                    <li>성분 및 제조사 정보</li>
-                    <li>부작용 및 주의사항</li>
-                    <li>상호작용 정보</li>
-                </ul>
-                <a href="https://api.fda.gov" target="_blank" rel="noopener" style="color: var(--primary); font-size: 0.85rem;">→ FDA OpenData Portal</a>
+                <strong>한국 의약품 데이터베이스</strong><br>
+                <span style="font-size: 0.9rem;">한국 식품의약품안전처 승인 의약품 정보</span><br>
+                <a href="https://nedrug.mfds.go.kr" target="_blank" rel="noopener" style="color: var(--primary);">→ 의약품안전나라 바로가기</a>
             </div>
             
-            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                🇰🇷 <span style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;">MFDS</span> 의약품안전나라
-            </h5>
-            <div style="margin-bottom: 1rem;">
-                <span style="font-size: 0.9rem;">한국 식품의약품안전처(MFDS) 승인 의약품 정보</span><br>
-                <ul style="margin: 0.5rem 0 0 1rem; font-size: 0.85rem;">
-                    <li>국내 허가 의약품 정보 (3만+ 제품)</li>
-                    <li>한국어 의약품명 및 영문명 매핑</li>
-                    <li>국내 제조사 및 수입사 정보</li>
-                    <li>한국 실정에 맞는 복용법 및 주의사항</li>
-                </ul>
-                <a href="https://nedrug.mfds.go.kr" target="_blank" rel="noopener" style="color: var(--primary); font-size: 0.85rem;">→ 의약품안전나라</a>
-            </div>
-            
-            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem;">🤖 AI 분석 서비스</h5>
-            <p style="margin: 0.5rem 0; font-size: 0.9rem;">고도화된 AI 모델을 통한 상호작용 분석 및 한국 의료 환경 고려</p>
-            <ul style="margin-left: 1rem; font-size: 0.85rem;">
-                <li><strong>OpenAI GPT-4:</strong> 포괄적 의학 지식 분석</li>
-                <li><strong>Anthropic Claude:</strong> 안전성 중심 분석</li>
-                <li><strong>Google Gemini:</strong> 다국어 의학 정보 처리</li>
-                <li><strong>Perplexity AI:</strong> 실시간 의학 연구 동향 반영</li>
+            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem;">AI 분석 서비스</h5>
+            <ul style="margin-left: 1rem;">
+                <li><strong>OpenAI GPT-4o-mini:</strong> 약물 상호작용 분석</li>
+                <li><strong>Anthropic Claude:</strong> 의료 정보 해석</li>
+                <li><strong>Google Gemini:</strong> 다각도 분석</li>
+                <li><strong>Perplexity AI:</strong> 실시간 정보 검색</li>
             </ul>
             
-            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem;">📈 데이터 품질 보장</h5>
-            <ul style="margin-left: 1rem; font-size: 0.85rem;">
-                <li><strong>실시간 업데이트:</strong> FDA API를 통한 최신 데이터 반영</li>
-                <li><strong>검증된 소스:</strong> 공식 의료기관 승인 데이터만 사용</li>
-                <li><strong>다중 검증:</strong> 여러 AI 모델을 통한 교차 검증</li>
-                <li><strong>한국형 맞춤:</strong> 국내 의료 환경 및 처방 관행 고려</li>
-            </ul>
-            
-            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem;">🔗 추가 참고 자료</h5>
-            <ul style="margin-left: 1rem; font-size: 0.85rem;">
-                <li><a href="https://www.health.kr" target="_blank" rel="noopener" style="color: var(--primary);">약학정보원</a></li>
+            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem;">참고 자료</h5>
+            <ul style="margin-left: 1rem;">
+                <li><a href="https://nedrug.mfds.go.kr" target="_blank" rel="noopener" style="color: var(--primary);">의약품안전나라</a></li>
+                <li><a href="https://health.kr" target="_blank" rel="noopener" style="color: var(--primary);">약학정보원</a></li>
                 <li><a href="https://opendata.hira.or.kr" target="_blank" rel="noopener" style="color: var(--primary);">건강보험심사평가원</a></li>
-                <li><a href="https://www.mfds.go.kr" target="_blank" rel="noopener" style="color: var(--primary);">식품의약품안전처</a></li>
-                <li><a href="https://www.kdca.go.kr" target="_blank" rel="noopener" style="color: var(--primary);">질병관리청</a></li>
             </ul>
             
-            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(var(--warning-rgb, 255, 193, 7), 0.1); border-radius: 8px; border-left: 4px solid var(--warning, #ffc107);">
-                <strong>⚠️ 중요한 알림:</strong><br>
-                이 도구는 교육 및 정보 제공 목적으로만 사용되며, 의학적 조언을 대체하지 않습니다. 
-                실제 약물 복용 전에는 반드시 의사나 약사와 상담하세요. 
-                특히 한국에서는 식약처 허가 의약품 정보를 우선 참고하시기 바랍니다.
+            <h5 style="color: var(--primary); margin: 1.5rem 0 0.5rem;">데이터 업데이트</h5>
+            <p>한국 의약품 데이터는 정기적으로 업데이트되며, AI 분석은 한국의 의료 환경과 실정을 고려하여 수행됩니다.</p>
+            
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(var(--info-rgb, 0, 123, 255), 0.1); border-radius: 8px; border-left: 4px solid var(--info, #007bff);">
+                <strong>ℹ️ 참고:</strong><br>
+                모든 데이터는 신뢰할 수 있는 공식 소스에서 가져오지만, 개별 환자의 상황은 다를 수 있으므로 의료진과의 상담이 필수입니다.
             </div>
         </div>
     `);
@@ -4728,41 +4280,5 @@ function enhanceScrollObserver() {
 
 // 스크롤 이벤트 리스너 등록
 window.addEventListener('scroll', handleScroll, { passive: true });
-
-// CSP allowed domains
-const CSP_ALLOWED_DOMAINS = [
-    'api.fda.gov',
-    'nedrug.mfds.go.kr',
-    'www.health.kr',
-    'openapi.foodsafetykorea.go.kr',
-    'platform.openai.com',
-    'api.anthropic.com',
-    'api.perplexity.ai',
-    'generativelanguage.googleapis.com'
-];
-
-// API 설정
-const API_CONFIGS = {
-    fda: {
-        baseUrl: 'https://api.fda.gov/drug/label.json',
-        name: 'FDA OpenFDA',
-        rateLimit: 1000, // per day
-        supportedLanguages: ['en']
-    },
-    mfds: {
-        baseUrl: 'https://nedrug.mfds.go.kr/api',
-        searchUrl: 'https://nedrug.mfds.go.kr/pbp/CCBCC01/getDrugPrdtList',
-        detailUrl: 'https://nedrug.mfds.go.kr/pbp/CCBCC01/getDrugPrdtPrmsn',
-        name: 'MFDS 의약품안전나라',
-        rateLimit: 1000, // per day
-        supportedLanguages: ['ko']
-    },
-    healthKr: {
-        baseUrl: 'https://www.health.kr/api',
-        name: '건강정보 통합 API',
-        rateLimit: 500,
-        supportedLanguages: ['ko']
-    }
-};
 
  

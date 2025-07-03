@@ -1729,102 +1729,6 @@ body.scrolling .container::after {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* 검색 소스 정보 */
-.search-source-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--secondary-rgb), 0.1));
-    border-radius: 12px;
-    border: 1px solid rgba(var(--primary-rgb), 0.2);
-    flex-wrap: wrap;
-}
-
-.source-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.source-badge.fda {
-    background: linear-gradient(135deg, #1e40af, #3b82f6);
-    color: white;
-}
-
-.source-badge.mfds {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    color: white;
-}
-
-.source-badge.api-failed {
-    opacity: 0.6;
-    background: linear-gradient(135deg, #6b7280, #9ca3af) !important;
-}
-
-.api-status-warning {
-    width: 100%;
-    margin-top: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(var(--warning-rgb), 0.1);
-    border-radius: 6px;
-    border-left: 3px solid var(--warning);
-}
-
-.api-status-warning small {
-    color: var(--warning);
-    font-size: 0.75rem;
-}
-
-.total-results {
-    color: var(--text);
-    font-weight: 600;
-    margin-left: auto;
-}
-
-/* 작은 소스 배지 */
-.source-badge-small {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    margin-left: 0.5rem;
-}
-
-.source-badge-small.fda-badge {
-    background: rgba(59, 130, 246, 0.15);
-    color: #1e40af;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-.source-badge-small.mfds-badge {
-    background: rgba(239, 68, 68, 0.15);
-    color: #dc2626;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-/* 다크모드에서 소스 배지 */
-[data-theme="dark"] .source-badge-small.fda-badge {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.4);
-}
-
-[data-theme="dark"] .source-badge-small.mfds-badge {
-    background: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-}
-
 /* 알림 */
 .alert {
     position: fixed;
@@ -1838,7 +1742,7 @@ body.scrolling .container::after {
     align-items: center;
     gap: 0.75rem;
     transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 999999 !important;
+    z-index: 3000;
     max-width: 90vw;
     min-width: 300px;
     cursor: grab;
@@ -2410,7 +2314,6 @@ body.scrolling .container::after {
         padding: 0.75rem 1rem;
         font-size: 0.85rem;
         transform: translateX(-50%);
-        z-index: 999999 !important;
     }
     
     .alert.show {
@@ -2783,7 +2686,6 @@ html {
     border-top: 1px solid var(--border);
     position: relative;
     overflow: hidden;
-    z-index: 1;
 }
 
 .footer::before {
@@ -3063,7 +2965,6 @@ html {
 @media (max-width: 768px) {
     .footer {
         margin-top: auto;
-        z-index: 1;
     }
     
     .footer-container {
@@ -3186,7 +3087,7 @@ html {
 
     .footer{
         margin-top: 6rem;
-        z-index: 1;
+        z-index: 10;
     }
     
     .footer-container {

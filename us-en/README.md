@@ -60,7 +60,7 @@ Drug Interaction Checker is a sophisticated web application that helps users ide
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/qklp1235/Drug-Interaction-Checker.git
+   git clone https://github.com/yourusername/drug-interaction-checker.git
    cd drug-interaction-checker
    ```
 
