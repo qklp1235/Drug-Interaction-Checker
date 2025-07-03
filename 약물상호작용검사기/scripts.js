@@ -2451,8 +2451,8 @@ const drugSearchHandler = utils.debounce(async function(inputId, drugNumber) {
     }
 }, 300);
 
-// 두 약물 모두 입력 완료 확인 함수
-function checkBothDrugsEntered() {
+// 두 약물 모두 입력 완료 확인 함수 (debounce 적용)
+const debouncedCheckBothDrugs = utils.debounce(function() {
     const drug1Element = document.getElementById('drug1');
     const drug2Element = document.getElementById('drug2');
     
@@ -2460,16 +2460,18 @@ function checkBothDrugsEntered() {
         // 이미 확인 메시지가 표시되었는지 확인 (중복 방지)
         if (!window.interactionCheckShown) {
             window.interactionCheckShown = true;
-            setTimeout(() => {
-                const shouldProceed = confirm(`두 약물의 상호작용을 확인하시겠습니까?`);
-                if (shouldProceed) {
-                    checkInteraction();
-                }
-                // 확인 후 플래그 리셋
-                window.interactionCheckShown = false;
-            }, 500);
+            const shouldProceed = confirm(`두 약물의 상호작용을 확인하시겠습니까?`);
+            if (shouldProceed) {
+                checkInteraction();
+            }
+            // 확인 후 플래그 리셋
+            window.interactionCheckShown = false;
         }
     }
+}, 1500); // 1.5초 동안 타이핑이 없으면 실행
+
+function checkBothDrugsEntered() {
+    debouncedCheckBothDrugs();
 }
 
 // Drug selection
