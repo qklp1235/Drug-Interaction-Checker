@@ -2460,12 +2460,15 @@ const debouncedCheckBothDrugs = utils.debounce(function() {
         // 이미 확인 메시지가 표시되었는지 확인 (중복 방지)
         if (!window.interactionCheckShown) {
             window.interactionCheckShown = true;
-            const shouldProceed = confirm(`두 약물의 상호작용을 확인하시겠습니까?`);
-            if (shouldProceed) {
-                checkInteraction();
-            }
-            // 확인 후 플래그 리셋
-            window.interactionCheckShown = false;
+            setTimeout(() => {
+                const shouldProceed = confirm(`두 약물의 상호작용을 확인하시겠습니까?`);
+                if (shouldProceed) {
+                    checkInteraction();
+                } else {
+                    // 사용자가 취소한 경우에만 플래그 리셋
+                    window.interactionCheckShown = false;
+                }
+            }, 100); // 약간의 지연을 추가하여 UI가 준비되도록 함
         }
     }
 }, 1500); // 1.5초 동안 타이핑이 없으면 실행
@@ -2537,6 +2540,7 @@ function selectDrug(inputId, drugName) {
 // Check interaction
 async function checkInteraction() {
     console.log('🔍 상호작용 검사 시작');
+    console.log('현재 window.interactionCheckShown:', window.interactionCheckShown);
     
     const drug1Element = document.getElementById('drug1');
     const drug2Element = document.getElementById('drug2');
@@ -2915,6 +2919,9 @@ async function checkInteraction() {
         // Smooth scroll
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
+        // 상호작용 검사 완료 후 플래그 리셋
+        window.interactionCheckShown = false;
+        
     } catch (error) {
         console.error('Interaction check error:', error);
         resultSection.style.display = 'block';
@@ -2968,6 +2975,9 @@ async function checkInteraction() {
                 resultSection.setAttribute('data-scroll-listener', 'true');
             }
         }, 100);
+        
+        // 에러 발생 시에도 플래그 리셋
+        window.interactionCheckShown = false;
     } finally {
         utils.hideLoading();
     }
