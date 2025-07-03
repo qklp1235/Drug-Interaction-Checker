@@ -1678,18 +1678,62 @@ function selectDrug(inputId, drugName) {
     document.getElementById(`${inputId}List`).classList.remove('show');
 }
 
-// Check interaction
+// 약물명 유효성 검사 함수 (영문)
+function isValidDrugName(drugName) {
+    if (!drugName) return false;
+    const lower = drugName.trim().toLowerCase();
+    // 영문/한글 모두 매핑에 있으면 OK
+    return (
+        ENGLISH_DRUG_DATABASE[drugName] ||
+        Object.keys(ENGLISH_DRUG_DATABASE).some(k => k.toLowerCase() === lower) ||
+        Object.values(drugNameMapping).some(v => v.toLowerCase() === lower) ||
+        Object.keys(drugNameMapping).some(k => k.toLowerCase() === lower)
+    );
+}
+
+// checkInteraction 수정: 입력값이 유효한 약물명일 때만 검사
 async function checkInteraction() {
-    const drug1 = document.getElementById('drug1').value.trim();
-    const drug2 = document.getElementById('drug2').value.trim();
-    
-    if (!drug1 || !drug2) {
-        utils.showAlert('Please enter both drugs.', 'warning');
+    console.log('🔍 Interaction check started');
+    const drug1Element = document.getElementById('drug1');
+    const drug2Element = document.getElementById('drug2');
+    if (!drug1Element || !drug2Element) {
+        alert('System error: Drug input fields not found.');
         return;
     }
-
+    const drug1 = drug1Element.value.trim();
+    const drug2 = drug2Element.value.trim();
+    if (!drug1 && !drug2) {
+        alert('Please enter both drugs.');
+        drug1Element.focus();
+        return;
+    }
+    if (!drug1) {
+        alert('Please enter the first drug.');
+        drug1Element.focus();
+        return;
+    }
+    if (!drug2) {
+        alert('Please enter the second drug.');
+        drug2Element.focus();
+        return;
+    }
+    // 약물명 유효성 검사
+    if (!isValidDrugName(drug1)) {
+        alert('The first drug name is not valid. Please enter an exact drug name.');
+        drug1Element.focus();
+        drug1Element.select();
+        return;
+    }
+    if (!isValidDrugName(drug2)) {
+        alert('The second drug name is not valid. Please enter an exact drug name.');
+        drug2Element.focus();
+        drug2Element.select();
+        return;
+    }
     if (drug1 === drug2) {
-        utils.showAlert('Please select different drugs.', 'warning');
+        alert('Please select two different drugs.');
+        drug2Element.focus();
+        drug2Element.select();
         return;
     }
 

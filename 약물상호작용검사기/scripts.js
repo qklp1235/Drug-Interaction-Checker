@@ -4714,4 +4714,66 @@ function selectDrugGlobal(inputId, drugName) {
     }
 }
 
+// 약물명 유효성 검사 함수
+function isValidDrugName(drugName) {
+    if (!drugName) return false;
+    const lower = drugName.trim().toLowerCase();
+    // 한글/영문 모두 매핑에 있으면 OK
+    return (
+        KOREAN_DRUG_DATABASE[drugName] ||
+        Object.keys(KOREAN_DRUG_DATABASE).some(k => k.toLowerCase() === lower) ||
+        Object.values(drugNameMapping).some(v => v.toLowerCase() === lower) ||
+        Object.keys(drugNameMapping).some(k => k.toLowerCase() === lower)
+    );
+}
+
+// checkInteraction 수정: 입력값이 유효한 약물명일 때만 검사
+async function checkInteraction() {
+    console.log('🔍 상호작용 검사 시작');
+    const drug1Element = document.getElementById('drug1');
+    const drug2Element = document.getElementById('drug2');
+    if (!drug1Element || !drug2Element) {
+        console.error('❌ 약물 입력 요소를 찾을 수 없습니다');
+        utils.showAlert('시스템 오류: 약물 입력 필드를 찾을 수 없습니다.', 'warning');
+        return;
+    }
+    const drug1 = SecurityUtils.sanitizeInput(drug1Element.value.trim());
+    const drug2 = SecurityUtils.sanitizeInput(drug2Element.value.trim());
+    if (!drug1 && !drug2) {
+        utils.showAlert('두 약물을 모두 입력해주세요.\n\n💡 약물을 검색해서 선택하거나 직접 입력하세요.', 'warning');
+        drug1Element.focus();
+        return;
+    }
+    if (!drug1) {
+        utils.showAlert('첫 번째 약물을 입력해주세요.', 'warning');
+        drug1Element.focus();
+        return;
+    }
+    if (!drug2) {
+        utils.showAlert('두 번째 약물을 입력해주세요.', 'warning');
+        drug2Element.focus();
+        return;
+    }
+    // 약물명 유효성 검사
+    if (!isValidDrugName(drug1)) {
+        utils.showAlert('첫 번째 약물명이 정확하지 않습니다.\n\n자동완성 리스트에서 선택하거나, 올바른 약물명을 입력하세요.', 'warning');
+        drug1Element.focus();
+        drug1Element.select();
+        return;
+    }
+    if (!isValidDrugName(drug2)) {
+        utils.showAlert('두 번째 약물명이 정확하지 않습니다.\n\n자동완성 리스트에서 선택하거나, 올바른 약물명을 입력하세요.', 'warning');
+        drug2Element.focus();
+        drug2Element.select();
+        return;
+    }
+    if (drug1 === drug2) {
+        utils.showAlert('서로 다른 약물을 선택해주세요.\n\n현재 동일한 약물이 선택되어 있습니다.', 'warning');
+        drug2Element.focus();
+        drug2Element.select();
+        return;
+    }
+    // ... 이하 기존 checkInteraction 로직 유지 ...
+}
+
  
