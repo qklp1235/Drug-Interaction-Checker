@@ -264,7 +264,7 @@ body.scrolling .container::after {
     -webkit-backdrop-filter: blur(10px);
     color: var(--text);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 100000;
+    z-index: 1;
 }
 
 .btn-primary:hover {
