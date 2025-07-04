@@ -5031,6 +5031,17 @@ function isValidDrugName(drugName) {
     );
 }
 
+function registerOneTimeToken() {
+    const token = document.getElementById('oneTimeToken').value.trim();
+    if (!token) {
+        utils.showAlert('일회성 키를 입력하세요.', 'warning');
+        return;
+    }
+    localStorage.setItem('oneTimeToken', token);
+    utils.showAlert('일회성 키가 등록되었습니다!', 'success');
+}
+window.registerOneTimeToken = registerOneTimeToken;
+
 
 
  
