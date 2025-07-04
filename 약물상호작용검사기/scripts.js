@@ -3572,18 +3572,24 @@ const OneTimeAPI = {
 };
 
 // 일회성 API 키 발급 함수 (HTML에서 호출)
-function getOneTimeAPIKey() {
-    OneTimeAPI.getOneTimeAPIKey().then(token => {
-        if (token) {
-            // 자동 입력 및 등록
+async function getOneTimeAPIKey() {
+    try {
+        const res = await fetch('/api/issue-onetime-key', { method: 'POST' });
+        const data = await res.json();
+        if (data.token) {
             const input = document.getElementById('oneTimeToken');
             if (input) {
-                input.value = token;
+                input.value = data.token;
                 registerOneTimeToken();
             }
+        } else {
+            utils.showAlert('일회성 키 발급 실패', 'error');
         }
-    });
+    } catch (e) {
+        utils.showAlert('일회성 키 발급 실패', 'error');
+    }
 }
+window.getOneTimeAPIKey = getOneTimeAPIKey;
 
 // Developer Tools
 const devTools = {
