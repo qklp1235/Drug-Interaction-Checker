@@ -3573,7 +3573,16 @@ const OneTimeAPI = {
 
 // 일회성 API 키 발급 함수 (HTML에서 호출)
 function getOneTimeAPIKey() {
-    OneTimeAPI.getOneTimeAPIKey();
+    OneTimeAPI.getOneTimeAPIKey().then(token => {
+        if (token) {
+            // 자동 입력 및 등록
+            const input = document.getElementById('oneTimeToken');
+            if (input) {
+                input.value = token;
+                registerOneTimeToken();
+            }
+        }
+    });
 }
 
 // Developer Tools
