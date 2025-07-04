@@ -99,6 +99,24 @@ Drug Interaction Checker is a sophisticated web application that helps users ide
 2. Generate API key
 3. Format: `AI...`
 
+#### 🎁 One-time API Key System
+
+For users without API keys, we provide a **free one-time API key system**:
+
+- **5 free uses per day** using Perplexity AI
+- **Automatic fallback** when no API keys are configured
+- **Daily reset** at midnight
+- **Usage tracking** with real-time counter
+- **No registration required**
+
+To use this feature:
+1. Open the settings modal (⚙️)
+2. Scroll to the "One-time API Key" section
+3. Click "Get One-time Key" button
+4. Use the AI analysis features immediately
+
+**Note**: This system uses a shared Perplexity API key. For production use, consider setting up your own API keys for better control and reliability.
+
 ### 📖 Usage
 
 1. **Search for drugs**
@@ -239,6 +257,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 1. [Google AI Studio](https://aistudio.google.com/app/apikey) 방문
 2. API 키 생성
 3. 형식: `AI...`
+
+#### 🎁 일회성 API 키 시스템
+
+API 키가 없는 사용자를 위한 **무료 일회성 API 키 시스템**을 제공합니다:
+
+- **하루 5회 무료 사용** (Perplexity AI 사용)
+- **자동 대체**: API 키가 설정되지 않은 경우 자동 사용
+- **매일 자정 리셋**
+- **실시간 사용량 추적**
+- **등록 불필요**
+
+사용 방법:
+1. 설정 모달 (⚙️) 열기
+2. "일회성 API 키" 섹션으로 스크롤
+3. "일회성 키 받기" 버튼 클릭
+4. 즉시 AI 분석 기능 사용
+
+**참고**: 이 시스템은 공유 Perplexity API 키를 사용합니다. 프로덕션 환경에서는 더 나은 제어와 안정성을 위해 자체 API 키 설정을 권장합니다.
 
 ### 📖 사용법
 

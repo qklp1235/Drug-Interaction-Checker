@@ -1036,6 +1036,21 @@ const utils = {
         
         try {
             let result;
+            
+            // Check if one-time API key can be used
+            const availableProviders = this.getAvailableProviders();
+            const canUseOneTime = OneTimeAPI.canUse();
+            
+            if (availableProviders.length === 0 && canUseOneTime) {
+                // No regular API keys but can use one-time API
+                console.log('🔑 Using one-time API key for analysis...');
+                result = await OneTimeAPI.callWithOneTimeKey(messages, options);
+                return { result, provider: 'Perplexity (One-time)' };
+            } else if (availableProviders.length === 0 && !canUseOneTime) {
+                throw new Error('No available API keys and daily usage limit exceeded.');
+            }
+            
+            // Use regular API keys
             switch (provider) {
                 case 'openai':
                     result = await this.callOpenAI(messages, options);
@@ -1056,6 +1071,22 @@ const utils = {
             return { result, provider: config.name };
         } catch (error) {
             console.error(`${config.name} API error:`, error);
+            
+            // Auto-retry with one-time API if no regular API keys and can use one-time
+            const availableProviders = this.getAvailableProviders();
+            const canUseOneTime = OneTimeAPI.canUse();
+            
+            if (availableProviders.length === 0 && canUseOneTime) {
+                try {
+                    console.log('🔄 Retrying with one-time API key...');
+                    const result = await OneTimeAPI.callWithOneTimeKey(messages, options);
+                    return { result, provider: 'Perplexity (One-time)' };
+                } catch (oneTimeError) {
+                    console.error('One-time API error:', oneTimeError);
+                    throw new Error('All API calls failed. Please check your API keys in settings or try again tomorrow.');
+                }
+            }
+            
             throw error;
         }
     },
@@ -2086,6 +2117,9 @@ function openSettings() {
     // Update API status
     updateAPIStatus();
     
+    // Update one-time API key UI
+    OneTimeAPI.updateUI();
+    
     modal.classList.add('show');
     
     // 설정 모달 바디에 스크롤 그라데이션 적용
@@ -2372,6 +2406,172 @@ function checkAPIKeyStatus() {
     }
 }
 
+// One-time API Key System
+const OneTimeAPI = {
+    // Perplexity API Key (should be managed by server in production)
+    // Please add your actual API key from .env file here
+    // Example: pplx-1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+    SHARED_API_KEY: 'pplx-your-actual-api-key-here',
+    MAX_DAILY_USAGE: 5,
+    
+    // Usage management
+    getDailyUsage() {
+        const today = new Date().toDateString();
+        const usage = JSON.parse(localStorage.getItem('oneTimeAPIUsage') || '{}');
+        return usage[today] || 0;
+    },
+    
+    setDailyUsage(count) {
+        const today = new Date().toDateString();
+        const usage = JSON.parse(localStorage.getItem('oneTimeAPIUsage') || '{}');
+        usage[today] = count;
+        localStorage.setItem('oneTimeAPIUsage', JSON.stringify(usage));
+    },
+    
+    incrementUsage() {
+        const currentUsage = this.getDailyUsage();
+        if (currentUsage < this.MAX_DAILY_USAGE) {
+            this.setDailyUsage(currentUsage + 1);
+            return true;
+        }
+        return false;
+    },
+    
+    // Calculate next reset time
+    getNextResetTime() {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        return tomorrow;
+    },
+    
+    // Check if can use
+    canUse() {
+        return this.getDailyUsage() < this.MAX_DAILY_USAGE;
+    },
+    
+    // Update UI
+    updateUI() {
+        const usageCount = this.getDailyUsage();
+        const nextReset = this.getNextResetTime();
+        
+        const countElement = document.getElementById('dailyUsageCount');
+        const resetElement = document.getElementById('nextResetTime');
+        const buttonElement = document.getElementById('getOneTimeKeyBtn');
+        
+        if (countElement) {
+            countElement.textContent = usageCount;
+        }
+        
+        if (resetElement) {
+            const timeString = nextReset.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            resetElement.textContent = timeString;
+        }
+        
+        if (buttonElement) {
+            if (this.canUse()) {
+                buttonElement.disabled = false;
+                buttonElement.textContent = '🔑 Get One-time Key';
+            } else {
+                buttonElement.disabled = true;
+                buttonElement.textContent = '❌ Daily Limit Exceeded';
+            }
+        }
+    },
+    
+    // Issue one-time API key
+    async getOneTimeAPIKey() {
+        if (!this.canUse()) {
+            utils.showAlert('Daily usage limit exceeded. Please try again tomorrow.', 'warning');
+            return null;
+        }
+        
+        try {
+            // Increment usage
+            if (!this.incrementUsage()) {
+                utils.showAlert('Daily usage limit exceeded.', 'warning');
+                return null;
+            }
+            
+            // Update UI
+            this.updateUI();
+            
+            // Create temporary API key (should be managed by server in production)
+            const tempKey = this.SHARED_API_KEY;
+            
+            // Set as Perplexity API key
+            SecurityUtils.secureLocalStorage.setItem('perplexity_api_key', tempKey);
+            
+            utils.showAlert('One-time API key issued! You can now use Perplexity AI.', 'success');
+            
+            // Update API status
+            updateAPIStatus();
+            
+            return tempKey;
+            
+        } catch (error) {
+            console.error('Failed to issue one-time API key:', error);
+            utils.showAlert('Failed to issue one-time API key. Please try again.', 'error');
+            return null;
+        }
+    },
+    
+    // Use one-time key for AI calls
+    async callWithOneTimeKey(messages, options = {}) {
+        if (!this.canUse()) {
+            throw new Error('Daily usage limit exceeded.');
+        }
+        
+        // Increment usage
+        if (!this.incrementUsage()) {
+            throw new Error('Daily usage limit exceeded.');
+        }
+        
+        // Update UI
+        this.updateUI();
+        
+        // Call Perplexity API
+        try {
+            const response = await fetch('https://api.perplexity.ai/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.SHARED_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.1-sonar-small-128k-online',
+                    messages: messages,
+                    max_tokens: options.maxTokens || 1000,
+                    temperature: options.temperature || 0.7
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API call failed: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.choices[0].message.content;
+            
+        } catch (error) {
+            console.error('One-time API call failed:', error);
+            throw error;
+        }
+    }
+};
+
+// One-time API key issuance function (called from HTML)
+function getOneTimeAPIKey() {
+    OneTimeAPI.getOneTimeAPIKey();
+}
+
 // Developer Tools
 const devTools = {
     clearCache() {
@@ -2506,6 +2706,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize API status (for settings modal)
     setTimeout(() => {
         updateAPIStatus();
+        // Initialize one-time API key UI
+        OneTimeAPI.updateUI();
     }, 100);
 
     // Search input event
