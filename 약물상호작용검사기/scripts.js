@@ -194,7 +194,7 @@ const AI_CONFIGS = {
     perplexity: {
         name: 'Perplexity',
         baseUrl: 'https://api.perplexity.ai/chat/completions',
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'pplx-70b-online',
         icon: '🔮'
     },
     gemini: {
@@ -3555,7 +3555,7 @@ const OneTimeAPI = {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'llama-3.1-sonar-small-128k-online',
+                    model: 'pplx-70b-online',
                     messages: messages,
                     max_tokens: options.maxTokens || 1000,
                     temperature: options.temperature || 0.7
