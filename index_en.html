@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="안전한 약물 사용을 돕는 약물 상호작용 검사 서비스">
+    <meta name="description" content="Drug interaction checker service to help ensure safe medication usage">
     
-    <!-- 보안 헤더 -->
+    <!-- Security Headers -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' 'unsafe-inline';
@@ -27,123 +27,124 @@
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" integrity="sha384-..." crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
-    <title>약물 상호작용 검사기 - 안전한 복용 가이드</title>
+    <title>Drug Interaction Checker - Safe Medication Guide</title>
 </head>
 <body class="preload">
-    <!-- 로딩 오버레이 -->
+    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <p id="loadingText" style="margin-top: 1rem;">처리 중...</p>
+            <p id="loadingText" style="margin-top: 1rem;">Processing...</p>
         </div>
     </div>
 
-    <!-- 약물 상세정보 모달 -->
+    <!-- Drug Detail Information Modal -->
     <div id="drugDetailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="drugDetailTitle"></h3>
-                <button class="modal-close" onclick="closeDrugDetail()" aria-label="닫기">×</button>
+                <button class="modal-close" onclick="closeDrugDetail()" aria-label="Close">×</button>
             </div>
             <div class="modal-body" id="drugDetailBody"></div>
         </div>
     </div>
 
-    <!-- 설정 모달 -->
+    <!-- Settings Modal -->
     <div id="settingsModal" class="settings-modal">
         <div class="settings-content">
             <div class="settings-header">
                 <h3 class="settings-title">
-                    🤖 AI 분석 설정
+                    🤖 AI Analysis Settings
                 </h3>
-                <button class="modal-close" onclick="closeSettings()" aria-label="닫기">×</button>
+                <button class="modal-close" onclick="closeSettings()" aria-label="Close">×</button>
             </div>
             <div class="settings-body">
-                <!-- AI 서비스 선택 -->
+                <!-- AI Service Selection -->
                 <div class="form-group">
-                    <label for="aiProvider" class="form-label">🎯 사용할 AI 서비스</label>
+                    <label for="aiProvider" class="form-label">🎯 AI Service to Use</label>
                     <select id="aiProvider" class="form-select">
                         <option value="openai">OpenAI (GPT-4o-mini)</option>
                         <option value="claude">Anthropic Claude</option>
                         <option value="perplexity">Perplexity AI</option>
                         <option value="gemini">Google Gemini</option>
-                        <option value="auto">🎲 자동 선택 (사용 가능한 것)</option>
+                        <option value="auto">🎲 Auto Select (Available)</option>
                     </select>
                     <div class="form-help">
-                        원하는 AI 서비스를 선택하세요. 자동 선택 시 설정된 키 중에서 자동으로 선택됩니다.
+                        Select the desired AI service. When auto-selected, it will automatically select from the configured keys.
                     </div>
                 </div>
+
 
                 <div class="form-group ai-config" data-provider="openai">
                     <label for="openaiApiKey" class="form-label">
                         <span class="provider-icon" alt="OpenAI"> 
-                        OpenAI API 키
+                        OpenAI API Key
                     </label>
                     <input type="password" 
                            id="openaiApiKey" 
                            class="form-input" 
                            placeholder="sk-..."
-                           aria-label="OpenAI API 키">
+                           aria-label="OpenAI API Key">
                     <div class="form-help">
                         <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color: var(--primary);">
-                            OpenAI 사이트에서 API 키 받기 →
+                            Get OpenAI API Key from OpenAI Site →
                         </a>
                     </div>
                 </div>
 
-                <!-- Claude 설정 -->
+                <!-- Claude Settings -->
                 <div class="form-group ai-config" data-provider="claude">
                     <label for="claudeApiKey" class="form-label">
-                        Anthropic Claude API 키
+                        Anthropic Claude API Key
                     </label>
                     <input type="password" 
                            id="claudeApiKey" 
                            class="form-input" 
                            placeholder="sk-ant-..."
-                           aria-label="Claude API 키">
+                           aria-label="Claude API Key">
                     <div class="form-help">
                         <a href="https://console.anthropic.com/" target="_blank" rel="noopener" style="color: var(--primary);">
-                            Anthropic 콘솔에서 API 키 받기 →
+                            Get Anthropic API Key from Anthropic Console →
                         </a>
                     </div>
                 </div>
 
-                <!-- Perplexity 설정 -->
+                <!-- Perplexity Settings -->
                 <div class="form-group ai-config" data-provider="perplexity">
                     <label for="perplexityApiKey" class="form-label">
-                        Perplexity API 키
+                        Perplexity API Key
                     </label>
                     <input type="password" 
                            id="perplexityApiKey" 
                            class="form-input" 
                            placeholder="pplx-..."
-                           aria-label="Perplexity API 키">
+                           aria-label="Perplexity API Key">
                     <div class="form-help">
                         <a href="https://www.perplexity.ai/settings/api" target="_blank" rel="noopener" style="color: var(--primary);">
                         </a>
                     </div>
                 </div>
 
-                <!-- Gemini 설정 -->
+                <!-- Gemini Settings -->
                 <div class="form-group ai-config" data-provider="gemini">
                     <label for="geminiApiKey" class="form-label">
-                        Google Gemini API 키
+                        Google Gemini API Key
                     </label>
                     <input type="password" 
                            id="geminiApiKey" 
                            class="form-input" 
                            placeholder="AI..."
-                           aria-label="Gemini API 키">
+                           aria-label="Gemini API Key">
                     <div class="form-help">
                         <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color: var(--primary);">
-                            Google AI Studio에서 Gemini API 키 받기 →
+                            Get Gemini API Key from Google AI Studio →
                         </a>
                     </div>
                 </div>
 
-                <!-- 상태 표시 -->
+                <!-- Status Display -->
                 <div class="api-status">
-                    <h4>🔑 API 키 상태</h4>
+                    <h4>🔑 API Key Status</h4>
                     <div class="status-grid">
                         <div class="status-item" id="openai-status">
                             <span class="status-icon">⚪</span>
@@ -165,39 +166,39 @@
                 </div>
             </div>
             <div class="settings-actions">
-                <button class="btn btn-secondary" onclick="closeSettings()">취소</button>
-                <button class="btn btn-primary" onclick="saveSettings()">저장</button>
-                <button class="btn btn-secondary" onclick="testAllAPIs()">🧪 API 테스트</button>
+                <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+                <button class="btn btn-secondary" onclick="testAllAPIs()">🧪 API Test</button>
             </div>
         </div>
     </div>
 
-    <!-- 메인 컨테이너 -->
+    <!-- Main Container -->
     <div class="container">
-        <!-- 헤더 -->
+        <!-- Header -->
         <header class="header scroll-fade">
             <div class="header-top">
-                <h1>약물 상호작용 검사기</h1>
+                <h1>Drug Interaction Checker</h1>
                 <div class="language-selector">
-                    <button class="btn btn-secondary btn-sm" onclick="switchToEnglish()" title="Switch to English">
-                        🇺🇸 English
+                    <button class="btn btn-secondary btn-sm" onclick="switchToKorean()" title="한국어로 전환">
+                        🇰🇷 한국어
                     </button>
                 </div>
             </div>
-            <p>안전한 복용을 위한 약물 간의 상호작용을 확인하세요</p>
+            <p>Check the interaction between drugs for safe medication</p>
         </header>
 
-        <!-- 약물 검색 섹션 -->
+        <!-- Drug Search Section -->
         <section class="card scroll-hidden scroll-delay-1">
-            <h2 class="sr-only">약물 검색</h2>
+            <h2 class="sr-only">Drug Search</h2>
             <div class="search-box">
                 <input type="text" 
                        id="drugSearch" 
                        class="input-field" 
-                       placeholder="약물을 검색하세요 (예: 아스피린, 타이레놀)"
+                       placeholder="Search for a drug (e.g. Aspirin, Aspirin)"
                        autocomplete="off"
-                       aria-label="약물 검색">
-                <button class="btn btn-primary" onclick="searchDrug()" aria-label="검색">
+                       aria-label="Drug Search">
+                <button class="btn btn-primary" onclick="searchDrug()" aria-label="Search">
                 </button>
             </div>
             
@@ -206,127 +207,128 @@
             </div>
             
             <div class="recent-searches" style="margin-top: 1rem;">
-                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">최근 검색</div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Recent Searches</div>
                 <div id="recentSearchesList" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
             </div>
         </section>
 
-        <!-- 자주 찾는 약물 섹션 -->
+        <!-- Example Drugs Section -->
         <section class="example-drugs scroll-slide-left scroll-delay-2">
-            <h3>💊 자주 찾는 약물</h3>
+            <h3>💊 Frequently Searched Drugs</h3>
             <ul>
-                <li onclick="useExampleDrug('타이레놀')">타이레놀</li>
-                <li onclick="useExampleDrug('아스피린')">아스피린</li>
-                <li onclick="useExampleDrug('이부프로펜')">이부프로펜</li>
-                <li onclick="useExampleDrug('암로디핀')">암로디핀</li>
-                <li onclick="useExampleDrug('로사르탄')">로사르탄</li>
-                <li onclick="useExampleDrug('메트포르민')">메트포르민</li>
-                <li onclick="useExampleDrug('오메프라졸')">오메프라졸</li>
-                <li onclick="useExampleDrug('아목시실린')">아목시실린</li>
-                <li onclick="useExampleDrug('디아제팜')">디아제팜</li>
-                <li onclick="useExampleDrug('와파린')">와파린</li>
+                <li onclick="useExampleDrug('Aspirin')">Aspirin</li>
+                <li onclick="useExampleDrug('Warfarin')">Warfarin</li>
+                <li onclick="useExampleDrug('Ibuprofen')">Ibuprofen</li>
+                <li onclick="useExampleDrug('Acetaminophen')">Acetaminophen</li>
+                <li onclick="useExampleDrug('Methotrexate')">Methotrexate</li>
+                <li onclick="useExampleDrug('Simvastatin')">Simvastatin</li>
             </ul>
         </section>
 
-        <!-- 약물 선택 섹션 -->
+        <!-- Drug Selection Section -->
         <section class="card scroll-hidden scroll-delay-3">
-            <h2 class="sr-only">약물 선택</h2>
+            <h2 class="sr-only">Drug Selection</h2>
             <div class="drug-select-section">
                 <div class="drug-select-container">
                     <div class="input-wrapper">
                         <input type="text" 
                                id="drug1" 
                                class="input-field" 
-                               placeholder="첫 번째 약물"
+                               placeholder="First Drug"
                                autocomplete="off"
-                               aria-label="첫 번째 약물">
+                               aria-label="First Drug">
+                    </div>
+                    <div class="drug-list" id="drug1List">
+                        <div class="drug-items"></div>
                     </div>
                 </div>
+                
                 <div class="drug-select-container">
                     <div class="input-wrapper">
                         <input type="text" 
                                id="drug2" 
                                class="input-field" 
-                               placeholder="두 번째 약물"
+                               placeholder="Second Drug"
                                autocomplete="off"
-                               aria-label="두 번째 약물">
+                               aria-label="Second Drug">
+                    </div>
+                    <div class="drug-list" id="drug2List">
+                        <div class="drug-items"></div>
                     </div>
                 </div>
             </div>
+            
             <button class="btn btn-primary btn-block" onclick="checkInteraction()">
-                상호작용 검사하기
+                Check Interaction
             </button>
         </section>
-        <!-- 카드 바깥쪽에 글로벌 약물 검색 결과 영역 추가 -->
-        <div id="globalDrugResultList" class="drug-list" style="position: static; margin: 1.5rem 0 2rem 0; display: none;">
-            <div class="drug-items"></div>
-        </div>
 
-        <!-- 결과 섹션 -->
+        <!-- Result Section -->
         <section id="resultSection" class="result-section scroll-scale">
             <div id="result"></div>
         </section>
     </div>
 
-    <!-- 플로팅 액션 버튼 -->
-    <button class="fab" onclick="scrollToTop()" title="맨 위로" aria-label="맨 위로 스크롤">
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="scrollToTop()" title="Scroll to Top" aria-label="Scroll to Top">
         ↑
     </button>
 
-    <!-- 설정 버튼 -->
-    <button class="settings-fab" title="AI 설정" aria-label="AI 설정">
+    <!-- Settings Button -->
+    <button class="settings-fab" title="AI Settings" aria-label="AI Settings">
         ⚙️
     </button>
 
-    <!-- 알림 메시지 -->
+    <!-- Notify Message -->
     <span id="alertMessage" class="alert" role="alert"></span>
     
-    <!-- 푸터 -->
+    <!-- Footer -->
     <footer class="footer" style="margin-top: 200px;">
         <div class="footer-container">
-            <!-- 메인 푸터 컨텐츠 -->
+            <!-- Main Footer Content -->
             <div class="footer-content">
-                <!-- 소개 섹션 -->
+                <!-- About Section -->
                 <div class="footer-section footer-about">
-                    <h3>💊 약물 상호작용 검사기</h3>
-                    <p>안전한 약물 사용을 위한 상호작용 검사 도구입니다. 의료진의 조언을 항상 우선시하시기 바랍니다.</p>
+                    <h3>💊 Drug Interaction Checker</h3>
+                    <p>A comprehensive tool for checking drug interactions to help ensure safe medication usage. Always consult healthcare professionals for medical advice.</p>
                     <div class="footer-badges">
-                        <span class="badge">FDA 데이터베이스</span>
-                        <span class="badge">AI 기반</span>
-                        <span class="badge">무료 도구</span>
+                        <span class="badge">FDA Database</span>
+                        <span class="badge">AI-Powered</span>
+                        <span class="badge">Free Tool</span>
                     </div>
                 </div>
 
-                <!-- 빠른 링크 -->
+                <!-- Quick Links -->
                 <div class="footer-section footer-links">
-                    <h4>빠른 링크</h4>
+                    <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="#" onclick="scrollToTop()">🔝 맨 위로</a></li>
-                        <li><a href="#" onclick="openSettings()">⚙️ AI 설정</a></li>
-                        <li><a href="#" onclick="utils.checkDeveloperCode('dev_2024')">🔧 개발자 모드</a></li>
+                        <li><a href="#" onclick="scrollToTop()">🔝 Back to Top</a></li>
+                        <li><a href="#" onclick="openSettings()">⚙️ AI Settings</a></li>
+                        <li><a href="#" onclick="utils.checkDeveloperCode('dev_2024')">🔧 Developer Mode</a></li>
                         <li><a href="https://api.fda.gov/drug/label.json" target="_blank" rel="noopener">📊 FDA API</a></li>
                     </ul>
-                </div>
+                    </div>
 
-                <!-- 의료 자료 -->
+                <!-- Medical Resources -->
                 <div class="footer-section footer-resources">
-                    <h4>의료 자료</h4>
+                    <h4>Medical Resources</h4>
                     <ul>
-                        <li><a href="https://www.mfds.go.kr" target="_blank" rel="noopener">🏛️ 식약처 공식 사이트</a></li>
-                        <li><a href="https://www.druginfo.co.kr" target="_blank" rel="noopener">💊 드러그인포</a></li>
-                        <li><a href="https://www.hira.or.kr" target="_blank" rel="noopener">🏥 건강보험심사평가원</a></li>
-                        <li><a href="https://www.nhi.or.kr" target="_blank" rel="noopener">📚 국민건강정보포털</a></li>
+                        <li><a href="https://www.fda.gov" target="_blank" rel="noopener">🏛️ FDA Official</a></li>
+                        <li><a href="https://www.drugs.com/drug_interactions.php" target="_blank" rel="noopener">💊 Drugs.com</a></li>
+                        <li><a href="https://www.webmd.com" target="_blank" rel="noopener">🩺 WebMD</a></li>
+                        <li><a href="https://medlineplus.gov" target="_blank" rel="noopener">📚 MedlinePlus</a></li>
                     </ul>
                 </div>
 
-                <!-- 연락처 및 소셜 -->
+                <!-- Contact & Social -->
                 <div class="footer-section footer-contact">
-                    <h4>문의하기</h4>
+                    <h4>Contact us</h4>
                     <style>
                         h4 {
                             display: flex;
                             align-items: center;
                             justify-content: center;
+                            align-items: center;
                             text-align: center;
                             font-size: 1rem;
                             font-weight: 600;
@@ -336,6 +338,7 @@
                             display: flex;
                             align-items: center;
                             justify-content: center;
+                            align-items: center;
                             text-align: center;
                             font-size: 0.8rem;
                             font-weight: 600;
@@ -344,8 +347,8 @@
                         }
                     </style>
                     <div class="social-links">
-                        <a href="mailto:pisotlinkr@icloud.com" title="이메일">
-                            <span>이메일</span>
+                        <a href="mailto:pisotlinkr@icloud.com" title="Email">
+                            <span>Email</span>
                         </a>
                         <a href="https://github.com" target="_blank" rel="noopener" title="GitHub">
                             <span>GitHub</span>
@@ -354,44 +357,44 @@
                     <div class="footer-stats">
                         <div class="stat">
                             <span class="stat-number" id="footerSearchCount">0</span>
-                            <span class="stat-label">오늘 검색</span>
+                            <span class="stat-label">Searches Today</span>
                         </div>
-                    </div>
-                </div>
-            </div>
+                        </div>
+                        </div>
+                        </div>
 
-            <!-- 의료 면책조항 -->
+            <!-- Medical Disclaimer -->
             <div class="footer-disclaimer">
                 <div class="disclaimer-content">
-                    <h4>⚠️ 중요한 의료 면책조항</h4>
+                    <h4>⚠️ Important Medical Disclaimer</h4>
                     <p>
-                        이 도구는 교육 및 정보 제공 목적으로만 사용됩니다. 의료 조언, 진단 또는 치료를 대체할 수 없습니다.
-                        약물 또는 의료 치료에 대한 결정을 내리기 전에 항상 자격을 갖춘 의료 전문가와 상담하시기 바랍니다.
-                        약물 상호작용은 복잡하고 개별적일 수 있습니다.
+                        This tool is for educational and informational purposes only. It is not intended as medical advice, diagnosis, or treatment. 
+                        Always consult qualified healthcare professionals before making any decisions about medications or medical treatments. 
+                        Drug interactions can be complex and individualized.
                     </p>
-                </div>
-            </div>
+                        </div>
+                                </div>
 
-            <!-- 하단 바 -->
+            <!-- Bottom Bar -->
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
                     <div class="footer-copyright">
                         <p>&copy; 2025 Drug Interaction Checker. All rights reserved.</p>
                     </div>
                     <div class="footer-legal">
-                        <a href="#" onclick="showPrivacyPolicy()">개인정보처리방침</a>
-                        <a href="#" onclick="showTermsOfService()">이용약관</a>
-                        <a href="#" onclick="showDataSources()">데이터 출처</a>
-                    </div>
+                        <a href="#" onclick="showPrivacyPolicy()">Privacy Policy</a>
+                        <a href="#" onclick="showTermsOfService()">Terms of Service</a>
+                        <a href="#" onclick="showDataSources()">Data Sources</a>
+                            </div>
                     <div class="footer-language">
-                        <a href="../index.html" title="영어 버전으로 전환">⌘ English</a>
-                    </div>
+                        <a href="약물상호작용검사기/index.html" title="한국어 버전으로 전환">🇰🇷 한국어</a>
+                                </div>
                     <div class="footer-version">
                         <span>v2.1.0 | G.gear® service Pistol™ GongSaeng™</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                            </div>
+                        </div>
+                            </div>
+                            </div>
     </footer>
 
     <script src="scripts.js"></script>

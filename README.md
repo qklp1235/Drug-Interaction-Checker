@@ -51,6 +51,11 @@ Drug Interaction Checker is a sophisticated web application that helps users ide
 
 ### 🚀 Getting Started
 
+#### 🌐 Language Support
+- **Korean (Default)**: `index.html` - 한국어 메인 페이지
+- **English**: `index_en.html` - 영어 버전
+- **Language Switch**: Click the language button in the header to switch between Korean and English
+
 #### Prerequisites
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 - Internet connection for API access
@@ -191,6 +196,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **기능**: 실시간 검색, AI 통합, 로컬 스토리지
 
 ### 🚀 시작하기
+
+#### 🌐 언어 지원
+- **한국어 (기본)**: `index.html` - 한국어 메인 페이지
+- **영어**: `index_en.html` - 영어 버전
+- **언어 전환**: 헤더의 언어 버튼을 클릭하여 한국어와 영어 간 전환
 
 #### 사전 요구사항
 - 모던 웹 브라우저 (Chrome, Firefox, Safari, Edge)

@@ -20,12 +20,6 @@
     --radius-lg: 24px;
     --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --scroll-transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-    --dur-high: #ff4444;
-    --dur-medium: #ffaa44;
-    --dur-low: #44aa44;
-    --dur-high-bg: rgba(255, 68, 68, 0.1);
-    --dur-medium-bg: rgba(255, 170, 68, 0.1);
-    --dur-low-bg: rgba(68, 170, 68, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,9 +36,6 @@
         --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
         --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
         --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-        --dur-high-bg: rgba(255, 68, 68, 0.15);
-        --dur-medium-bg: rgba(255, 170, 68, 0.15);
-        --dur-low-bg: rgba(68, 170, 68, 0.15);
     }
 }
 
@@ -138,41 +129,6 @@ body.scrolling .container::after {
     text-align: center;
     margin-bottom: 3rem;
     animation: fadeInDown 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.language-selector {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    border-radius: var(--radius);
-}
-
-@media (max-width: 768px) {
-    .header-top {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .header-top h1 {
-        order: 1;
-    }
-    
-    .language-selector {
-        order: 2;
-    }
 }
 
 .header h1 {
@@ -536,12 +492,10 @@ body.scrolling .container::after {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) ;
     gap: 0.2rem;
     margin-bottom: 0.2rem;
-    z-index: 100;
 }
 
 .drug-select-container {
     position: relative;
-    z-index: 100;
 }
 
 .drug-list {
@@ -635,7 +589,6 @@ body.scrolling .container::after {
     transition: var(--transition);
     border-bottom: 1px solid var(--border);
     transform: translateX(0);
-    z-index: 100;
 }
 
 .drug-item:last-child {
@@ -652,12 +605,10 @@ body.scrolling .container::after {
 .drug-item.exact-match {
     background: rgba(var(--primary-rgb), 0.05);
     border-left: 3px solid var(--primary);
-    z-index: 100;
 }
 
 .drug-item.exact-match:hover {
     background: rgba(var(--primary-rgb), 0.15);
-    z-index: 100;
 }
 
 .drug-item-name {
@@ -666,7 +617,6 @@ body.scrolling .container::after {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    z-index: 100;
 }
 
 .drug-item-info {
@@ -676,7 +626,6 @@ body.scrolling .container::after {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    z-index: 100;
 }
 
 .top-result {
@@ -687,7 +636,6 @@ body.scrolling .container::after {
     border-radius: 8px;
     font-weight: 700;
     margin-left: auto;
-    z-index: 100;
 }
 
 .match-type {
@@ -698,7 +646,6 @@ body.scrolling .container::after {
     color: var(--primary);
     margin-left: 0.5rem;
     white-space: nowrap;
-    z-index: 100;
 }
 
 /* AI 분석 스타일 */
@@ -710,7 +657,6 @@ body.scrolling .container::after {
     margin-bottom: 1.5rem;
     position: relative;
     overflow: hidden;
-    z-index: 100;
 }
 
 .ai-analysis::before {
@@ -731,13 +677,11 @@ body.scrolling .container::after {
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-    z-index: 100;
 }
 
 .ai-icon {
     font-size: 1.5rem;
     animation: pulse 2s infinite;
-    z-index: 100;
 }
 
 @keyframes pulse {
@@ -750,14 +694,12 @@ body.scrolling .container::after {
     color: var(--text);
     font-size: 1.2rem;
     font-weight: 700;
-    z-index: 100;
 }
 
 .ai-analysis-content {
     color: var(--text);
     line-height: 1.7;
     font-size: 0.95rem;
-    z-index: 100;
 }
 
 .ai-analysis-content h2,
@@ -765,26 +707,22 @@ body.scrolling .container::after {
 .ai-analysis-content h4 {
     color: var(--primary);
     margin: 1rem 0 0.5rem 0;
-    z-index: 100;
 }
 
 .ai-analysis-content ul,
 .ai-analysis-content ol {
     margin: 0.5rem 0;
     padding-left: 1.5rem;
-    z-index: 100;
 }
 
 .ai-analysis-content li {
     margin: 0.25rem 0;
-    z-index: 100;
 }
 
 .separator {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--border), transparent);
     margin: 1.5rem 0;
-    z-index: 100;
 }
 
 .fda-data,
@@ -793,7 +731,6 @@ body.scrolling .container::after {
     background: rgba(var(--primary-rgb), 0.03);
     border-radius: var(--radius);
     border-left: 3px solid var(--primary);
-    z-index: 100;
 }
 
 .fda-data h4,
@@ -801,20 +738,17 @@ body.scrolling .container::after {
     color: var(--primary);
     margin-bottom: 0.75rem;
     font-size: 1.1rem;
-    z-index: 100;
 }
 
 .fda-data h5 {
     color: var(--text);
     font-size: 1rem;
     margin: 1rem 0 0.5rem 0;
-    z-index: 100;
 }
 
 /* FDA Toggle Section */
 .fda-toggle-section {
     margin-top: 20px;
-    z-index: 100;
 }
 
 .fda-toggle-btn {
@@ -833,7 +767,6 @@ body.scrolling .container::after {
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.3s ease;
-    z-index: 100;
 }
 
 .fda-toggle-btn:hover {
@@ -847,25 +780,21 @@ body.scrolling .container::after {
     background: var(--surface);
     border-color: var(--primary);
     color: var(--text);
-    z-index: 100;
 }
 
 .fda-toggle-btn .toggle-icon {
     margin-right: 8px;
     font-size: 1rem;
-    z-index: 100;
 }
 
 .fda-toggle-btn .toggle-text {
     flex: 1;
     text-align: left;
-    z-index: 100;
 }
 
 .fda-toggle-btn .toggle-arrow {
     font-size: 0.8rem;
     transition: transform 0.3s ease;
-    z-index: 100;
 }
 
 .fda-toggle-btn.expanded .toggle-arrow {
@@ -879,7 +808,6 @@ body.scrolling .container::after {
     border: 1px solid var(--border);
     border-radius: 8px;
     animation: fadeInDown 0.3s ease-out;
-    z-index: 100;
 }
 
 /* 설정 모달 */
@@ -1268,164 +1196,62 @@ body.scrolling .container::after {
     scroll-behavior: smooth;
     position: relative;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    /* 기본 상태에서도 부드러운 마스크 적용 */
-    mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.98) 0px, 
-            black 25px, 
-            black calc(100% - 25px), 
-            rgba(0, 0, 0, 0.98) 100%);
-    -webkit-mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.98) 0px, 
-            black 25px, 
-            black calc(100% - 25px), 
-            rgba(0, 0, 0, 0.98) 100%);
-    mask-mode: alpha;
-    -webkit-mask-mode: alpha;
-    transition: mask 1.4s cubic-bezier(0.16, 1, 0.3, 1), -webkit-mask 1.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* 호버 시 중간 단계 마스크 */
-.result-section:hover {
-    mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.88) 0px,
-            rgba(0, 0, 0, 0.96) 18px,
-            black 35px, 
-            black calc(100% - 35px), 
-            rgba(0, 0, 0, 0.96) calc(100% - 18px),
-            rgba(0, 0, 0, 0.88) 100%);
-    -webkit-mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.88) 0px,
-            rgba(0, 0, 0, 0.96) 18px,
-            black 35px, 
-            black calc(100% - 35px), 
-            rgba(0, 0, 0, 0.96) calc(100% - 18px),
-            rgba(0, 0, 0, 0.88) 100%);
-    transition: mask 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94), -webkit-mask 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* 결과 섹션 스크롤 그라데이션 */
+.result-section::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, var(--bg) 0%, rgba(255, 255, 255, 0.9) 70%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    margin-bottom: -20px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
-/* 스크롤 중일 때 강한 마스크 적용 */
-.result-section.scrolling {
-    mask: 
-        linear-gradient(to bottom, 
-            transparent 0px, 
-            rgba(0, 0, 0, 0.05) 6px,
-            rgba(0, 0, 0, 0.15) 12px,
-            rgba(0, 0, 0, 0.3) 22px,
-            rgba(0, 0, 0, 0.5) 32px,
-            rgba(0, 0, 0, 0.7) 42px,
-            rgba(0, 0, 0, 0.85) 50px,
-            black 60px, 
-            black calc(100% - 60px), 
-            rgba(0, 0, 0, 0.85) calc(100% - 50px),
-            rgba(0, 0, 0, 0.7) calc(100% - 42px),
-            rgba(0, 0, 0, 0.5) calc(100% - 32px),
-            rgba(0, 0, 0, 0.3) calc(100% - 22px),
-            rgba(0, 0, 0, 0.15) calc(100% - 12px),
-            rgba(0, 0, 0, 0.05) calc(100% - 6px),
-            transparent 100%);
-    -webkit-mask: 
-        linear-gradient(to bottom, 
-            transparent 0px, 
-            rgba(0, 0, 0, 0.05) 6px,
-            rgba(0, 0, 0, 0.15) 12px,
-            rgba(0, 0, 0, 0.3) 22px,
-            rgba(0, 0, 0, 0.5) 32px,
-            rgba(0, 0, 0, 0.7) 42px,
-            rgba(0, 0, 0, 0.85) 50px,
-            black 60px, 
-            black calc(100% - 60px), 
-            rgba(0, 0, 0, 0.85) calc(100% - 50px),
-            rgba(0, 0, 0, 0.7) calc(100% - 42px),
-            rgba(0, 0, 0, 0.5) calc(100% - 32px),
-            rgba(0, 0, 0, 0.3) calc(100% - 22px),
-            rgba(0, 0, 0, 0.15) calc(100% - 12px),
-            rgba(0, 0, 0, 0.05) calc(100% - 6px),
-            transparent 100%);
-    transition: mask 1.6s cubic-bezier(0.16, 1, 0.3, 1), -webkit-mask 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+.result-section::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to top, var(--bg) 0%, rgba(255, 255, 255, 0.9) 70%, transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    margin-top: -20px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
-/* 스크롤이 맨 위에 있을 때 - 상단 마스크 부드럽게 제거 */
-.result-section.scrolling[data-scroll-top="false"] {
-    mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.98) 0px,
-            black 18px, 
-            black calc(100% - 60px), 
-            rgba(0, 0, 0, 0.85) calc(100% - 50px),
-            rgba(0, 0, 0, 0.7) calc(100% - 42px),
-            rgba(0, 0, 0, 0.5) calc(100% - 32px),
-            rgba(0, 0, 0, 0.3) calc(100% - 22px),
-            rgba(0, 0, 0, 0.15) calc(100% - 12px),
-            rgba(0, 0, 0, 0.05) calc(100% - 6px),
-            transparent 100%);
-    -webkit-mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.98) 0px,
-            black 18px, 
-            black calc(100% - 60px), 
-            rgba(0, 0, 0, 0.85) calc(100% - 50px),
-            rgba(0, 0, 0, 0.7) calc(100% - 42px),
-            rgba(0, 0, 0, 0.5) calc(100% - 32px),
-            rgba(0, 0, 0, 0.3) calc(100% - 22px),
-            rgba(0, 0, 0, 0.15) calc(100% - 12px),
-            rgba(0, 0, 0, 0.05) calc(100% - 6px),
-            transparent 100%);
-    transition: mask 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94), -webkit-mask 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* 스크롤 중일 때 그라데이션 표시 */
+.result-section.scrolling::before,
+.result-section.scrolling::after {
+    opacity: 1;
 }
 
-/* 스크롤이 맨 아래에 있을 때 - 하단 마스크 부드럽게 제거 */
-.result-section.scrolling[data-scroll-bottom="false"] {
-    mask: 
-        linear-gradient(to bottom, 
-            transparent 0px, 
-            rgba(0, 0, 0, 0.05) 6px,
-            rgba(0, 0, 0, 0.15) 12px,
-            rgba(0, 0, 0, 0.3) 22px,
-            rgba(0, 0, 0, 0.5) 32px,
-            rgba(0, 0, 0, 0.7) 42px,
-            rgba(0, 0, 0, 0.85) 50px,
-            black 60px, 
-            black calc(100% - 18px),
-            rgba(0, 0, 0, 0.98) 100%);
-    -webkit-mask: 
-        linear-gradient(to bottom, 
-            transparent 0px, 
-            rgba(0, 0, 0, 0.05) 6px,
-            rgba(0, 0, 0, 0.15) 12px,
-            rgba(0, 0, 0, 0.3) 22px,
-            rgba(0, 0, 0, 0.5) 32px,
-            rgba(0, 0, 0, 0.7) 42px,
-            rgba(0, 0, 0, 0.85) 50px,
-            black 60px, 
-            black calc(100% - 18px),
-            rgba(0, 0, 0, 0.98) 100%);
-    transition: mask 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94), -webkit-mask 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* 스크롤 위치에 따른 개별 제어 */
+.result-section.scrolling[data-scroll-top="false"]::before {
+    opacity: 0;
 }
 
-/* 스크롤이 맨 위와 맨 아래 둘 다에 있을 때 - 기본 마스크로 돌아가기 */
-.result-section.scrolling[data-scroll-top="false"][data-scroll-bottom="false"] {
-    mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.98) 0px, 
-            black 25px, 
-            black calc(100% - 25px), 
-            rgba(0, 0, 0, 0.98) 100%);
-    -webkit-mask: 
-        linear-gradient(to bottom, 
-            rgba(0, 0, 0, 0.98) 0px, 
-            black 25px, 
-            black calc(100% - 25px), 
-            rgba(0, 0, 0, 0.98) 100%);
-    transition: mask 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), -webkit-mask 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+.result-section.scrolling[data-scroll-bottom="false"]::after {
+    opacity: 0;
 }
 
-/* 스크롤 종료 후 비활성화시 지연과 함께 부드러운 전환 */
-.result-section:not(.scrolling):not(:hover) {
-    transition: mask 2.0s cubic-bezier(0.16, 1, 0.3, 1) 0.6s, -webkit-mask 2.0s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
+@media (prefers-color-scheme: dark) {
+    .result-section::before {
+        background: linear-gradient(to bottom, var(--bg) 0%, rgba(24, 26, 27, 0.9) 70%, transparent 100%);
+    }
+    
+    .result-section::after {
+        background: linear-gradient(to top, var(--bg) 0%, rgba(24, 26, 27, 0.9) 70%, transparent 100%);
+    }
 }
 
 .result-card {
@@ -1806,7 +1632,8 @@ body.scrolling .container::after {
 
 .alert.dismissing {
     top: -100px;
-    transform: translateX(-50%);
+    opacity: 0;
+    transform: translateX(-50%) scale(0.8);
 }
 
 .alert-success {
@@ -1996,7 +1823,6 @@ body.scrolling .container::after {
 
     .container {
         padding: 1rem;
-        z-index: 100;
     }
 
     .header h1 {
@@ -2129,14 +1955,6 @@ body.scrolling .container::after {
         font-size: 0.8rem;
         font-weight: 500;
         transition: none;
-        z-index: 100000;
-    }
-    
-    /* 모바일에서 상호작용 검사하기 버튼 표시 */
-    .btn.btn-primary.btn-block[onclick="checkInteraction()"] {
-        display: block !important;
-        width: 100%;
-        margin-top: 1rem;
     }
     .api-status{
         flex-direction: column;
@@ -2586,14 +2404,14 @@ body.scrolling .container::after {
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--surface);
-    color: var(--primary);
+    color: var(--text);
     cursor: pointer;
     transition: var(--transition);
     font-weight: 500;
 }
 
 .dev-btn:hover {
-    background: var(--surface);
+    background: var(--primary);
     color: var(--text);
     transform: translateY(-1px);
 }
@@ -2835,14 +2653,12 @@ html {
         var(--primary) 80%, 
         transparent 100%);
     opacity: 0.5;
-    z-index: 1;
 }
 
 .footer-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 3rem 2rem 1rem;
-    z-index: 10;
 }
 
 /* Main Footer Content - Desktop: 4 columns */
@@ -2851,7 +2667,6 @@ html {
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: 3rem;
     margin-bottom: 3rem;
-    z-index: 10;
 }
 
 .footer-section h3,
@@ -2859,7 +2674,6 @@ html {
     color: var(--text);
     margin-bottom: 1rem;
     font-weight: 600;
-    z-index: 10;
 }
 
 .footer-section h3 {
@@ -2868,32 +2682,27 @@ html {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    z-index: 10;
 }
 
 .footer-section h4 {
     font-size: 1rem;
     color: var(--text-secondary);
-    z-index: 10;
 }
 
 .footer-section p {
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 1.5rem;
-    z-index: 10;
 }
 
 .footer-section ul {
     list-style: none;
     padding: 0;
     margin: 0;
-    z-index: 10;
 }
 
 .footer-section li {
     margin-bottom: 0.75rem;
-    z-index: 10;
 }
 
 .footer-section a {
@@ -2905,7 +2714,6 @@ html {
     gap: 0.5rem;
     padding: 0.25rem 0;
     border-radius: 4px;
-    z-index: 10;
 }
 
 .footer-section a:hover {
@@ -2919,7 +2727,6 @@ html {
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 1rem;
-    z-index: 10;
 }
 
 .footer-badges .badge {
@@ -2930,7 +2737,6 @@ html {
     font-size: 0.75rem;
     font-weight: 500;
     border: 1px solid rgba(var(--primary-rgb), 0.2);
-    z-index: 10;
 }
 
 /* Social Links */
@@ -2939,7 +2745,6 @@ html {
     flex-direction: column;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
-    z-index: 10;
 }
 
 .social-links a {
@@ -2948,7 +2753,6 @@ html {
     border-radius: 8px;
     border: 1px solid var(--border);
     transition: var(--transition);
-    z-index: 10;
 }
 
 .social-links a:hover {
@@ -2964,7 +2768,6 @@ html {
     border-radius: 12px;
     border: 1px solid var(--border);
     text-align: center;
-    z-index: 10;
 }
 
 .stat-number {
@@ -2973,7 +2776,6 @@ html {
     font-weight: 700;
     color: var(--primary);
     line-height: 1;
-    z-index: 10;
 }
 
 .stat-label {
@@ -2981,7 +2783,6 @@ html {
     color: var(--text-secondary);
     margin-top: 0.25rem;
     display: block;
-    z-index: 10;
 }
 
 /* Medical Disclaimer */
@@ -2991,7 +2792,6 @@ html {
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 2rem;
-    z-index: 10;
 }
 
 .disclaimer-content h4 {
@@ -2999,7 +2799,6 @@ html {
     margin-bottom: 0.75rem;
     font-size: 1rem;
     font-weight: 600;
-    z-index: 10;
 }
 
 .disclaimer-content p {
@@ -3007,14 +2806,12 @@ html {
     line-height: 1.6;
     margin: 0;
     font-size: 0.9rem;
-    z-index: 10;
 }
 
 /* Footer Bottom */
 .footer-bottom {
     border-top: 1px solid var(--border);
     padding-top: 1.5rem;
-    z-index: 10;
 }
 
 .footer-bottom-content {
@@ -3023,20 +2820,17 @@ html {
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
-    z-index: 10;
 }
 
 .footer-copyright p {
     color: var(--text-secondary);
     font-size: 0.875rem;
     margin: 0;
-    z-index: 10;
 }
 
 .footer-legal {
     display: flex;
     gap: 1.5rem;
-    z-index: 10;
 }
 
 .footer-legal a {
@@ -3044,19 +2838,16 @@ html {
     text-decoration: none;
     font-size: 0.875rem;
     transition: var(--transition);
-    z-index: 10;
 }
 
 .footer-legal a:hover {
     color: var(--primary);
-    z-index: 10;
 }
 
 .footer-language {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10;
 }
 
 .footer-language a {
@@ -3072,7 +2863,6 @@ html {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    z-index: 10;
 }
 
 .footer-language a:hover {
@@ -3090,7 +2880,6 @@ html {
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
     border: 1px solid var(--border);
-    z-index: 10;
 }
 
 /* Tablet Styles */
@@ -3098,36 +2887,29 @@ html {
     .footer-content {
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
-        z-index: 10;
     }
     
     .footer-about {
         grid-column: 1 / -1;
-        z-index: 10;
     }
     
     .footer-container {
         padding: 2.5rem 1.5rem 1rem;
-        z-index: 10;
-
     }
     
     .social-links {
         flex-direction: row;
         flex-wrap: wrap;
-        z-index: 10;
     }
     
     .footer-bottom-content {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
-        z-index: 10;
     }
     
     .footer-legal {
         order: -1;
-        z-index: 10;
     }
 }
 
@@ -3135,49 +2917,41 @@ html {
 @media (max-width: 768px) {
     .footer {
         margin-top: 2rem;
-        z-index: 10;
     }
     
     .footer-container {
         padding: 2rem 1rem 1rem;
-        z-index: 10;
     }
     
     .footer-content {
         grid-template-columns: 1fr;
         gap: 2rem;
         margin-bottom: 2rem;
-        z-index: 10;
     }
     
     .footer-section h3 {
         font-size: 1.1rem;
         text-align: center;
-        z-index: 10;
     }
     
     .footer-section h4 {
         font-size: 0.95rem;
         margin-bottom: 0.75rem;
-        z-index: 10;
     }
     
     .footer-section p {
         font-size: 0.9rem;
         text-align: center;
         margin-bottom: 1rem;
-        z-index: 10;
     }
     
     .footer-badges {
         justify-content: center;
-        z-index: 10;
     }
     
     .footer-badges .badge {
         font-size: 0.7rem;
         padding: 0.2rem 0.6rem;
-        z-index: 10;
     }
     
     .social-links {
@@ -3185,48 +2959,40 @@ html {
         justify-content: center;
         flex-wrap: wrap;
         gap: 0.5rem;
-        z-index: 10;
     }
     
     .social-links a {
         padding: 0.4rem 0.6rem;
         font-size: 0.85rem;
-        z-index: 10;
     }
     
     .footer-stats {
         max-width: 200px;
         margin: 0 auto;
-        z-index: 10;
     }
     
     .stat-number {
         font-size: 1.25rem;
-        z-index: 10;
     }
     
     .stat-label {
         font-size: 0.7rem;
-        z-index: 10;
     }
     
     .footer-disclaimer {
         padding: 1rem;
         margin-bottom: 1.5rem;
-        z-index: 10;
     }
     
     .disclaimer-content h4 {
         font-size: 0.9rem;
         text-align: center;
         margin-bottom: 0.5rem;
-        z-index: 10;
     }
     
     .disclaimer-content p {
         font-size: 0.8rem;
         text-align: center;
-        z-index: 10;
     }
     
     .footer-bottom-content {
@@ -3234,41 +3000,34 @@ html {
         align-items: center;
         text-align: center;
         gap: 1rem;
-        z-index: 10;
     }
     
         .footer-legal {
         flex-direction: column;
         gap: 0.75rem;
         align-items: center;
-        z-index: 10;
     }
 
     .footer-legal a {
         font-size: 0.8rem;
-        z-index: 10;
     }
 
     .footer-language {
         margin: 0.75rem 0;
-        z-index: 10;
     }
 
     .footer-language a {
         font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
-        z-index: 10;
     }
 
     .footer-copyright p {
         font-size: 0.8rem;
-        z-index: 10;
     }
 
     .footer-version {
         font-size: 0.75rem;
         padding: 0.2rem 0.6rem;
-        z-index: 10;
     }
 }
 
@@ -3276,135 +3035,46 @@ html {
 @media (max-width: 370px) {
     .footer-container {
         padding: 1.5rem 0.75rem 0.75rem;
-        z-index: 10;
     }
     
     .footer-content {
         gap: 1.5rem;
-        z-index: 10;
     }
     
     .footer-section h3 {
         font-size: 1rem;
-        z-index: 10;
     }
     
     .footer-section h4 {
         font-size: 0.9rem;
-        z-index: 10;
     }
     
     .footer-section p {
         font-size: 0.85rem;
-        z-index: 10;
     }
     
     .social-links a {
         padding: 0.35rem 0.5rem;
         font-size: 0.8rem;
-        z-index: 10;
     }
     
     .footer-disclaimer {
         padding: 0.75rem;
-        z-index: 10;
     }
     
     .disclaimer-content h4 {
         font-size: 0.85rem;
-        z-index: 10;
     }
     
     .disclaimer-content p {
         font-size: 0.75rem;
-        z-index: 10;
     }
     
     .footer-legal a {
         font-size: 0.75rem;
-        z-index: 10;
     }
     
     .footer-copyright p {
         font-size: 0.75rem;
-        z-index: 10;
-    }
-}
-
-/* DUR (Drug Utilization Review) 시스템 스타일 */
-.dur-section {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.dur-section:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-}
-
-.dur-analysis {
-    margin-bottom: 1.5rem;
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.dur-badge {
-    animation: pulse 2s infinite;
-}
-
-@keyframes durPulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.05);
-        opacity: 0.8;
-    }
-}
-
-.dur-badge:hover {
-    animation: durPulse 1s infinite;
-}
-
-/* DUR 위험도별 색상 변수 */
-:root {
-    --dur-high: #ff4444;
-    --dur-medium: #ffaa44;
-    --dur-low: #44aa44;
-    --dur-high-bg: rgba(255, 68, 68, 0.1);
-    --dur-medium-bg: rgba(255, 170, 68, 0.1);
-    --dur-low-bg: rgba(68, 170, 68, 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --dur-high-bg: rgba(255, 68, 68, 0.15);
-        --dur-medium-bg: rgba(255, 170, 68, 0.15);
-        --dur-low-bg: rgba(68, 170, 68, 0.15);
-    }
-}
-
-/* DUR 섹션 반응형 */
-@media (max-width: 768px) {
-    .dur-section {
-        padding: 1rem !important;
-        margin: 0.5rem 0;
-    }
-    
-    .dur-badge {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-    }
-}
-
-@media (max-width: 370px) {
-    .dur-section {
-        padding: 0.8rem !important;
-    }
-    
-    .dur-badge {
-        font-size: 0.7rem;
-        padding: 0.3rem 0.6rem;
     }
 } 
