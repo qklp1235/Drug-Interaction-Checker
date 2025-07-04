@@ -2,10 +2,7 @@
 const FDA_API_KEY = 'y15g3aG5icGrBAWcxP7HUkQa5h9pUcBFaD8kkmjk';
 const BASE_URL = 'https://api.fda.gov/drug/label.json';
 
-// 언어 전환 함수
-function switchToKorean() {
-    window.location.href = 'index.html';
-}
+
 
 // AI 서비스 설정
 const AI_CONFIGS = {

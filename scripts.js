@@ -177,10 +177,7 @@ const KOREAN_DRUG_INTERACTIONS = {
     }
 };
 
-// 언어 전환 함수
-function switchToEnglish() {
-    window.location.href = 'index_en.html';
-}
+
 
 // AI 서비스 설정
 const AI_CONFIGS = {
@@ -1809,7 +1806,7 @@ async function searchDrug(query = null) {
         // 한국 의약품 데이터베이스에서 검색
         const results = [];
         
-        if (state.developerMode) {
+                if (state.developerMode) {
             utils.logToDevConsole(`🔍 Searching in Korean drug database for: "${searchQuery}"`, 'info');
         }
         
@@ -2421,13 +2418,13 @@ const drugSearchHandler = utils.debounce(async function(inputId, drugNumber) {
         results.slice(0, 10).forEach((drug, index) => {
             if (!uniqueDrugs.has(drug.name)) {
                 uniqueDrugs.add(drug.name);
-                html += `
+                    html += `
                     <div class="drug-item scroll-hidden scroll-delay-${Math.min((index % 4) + 1, 4)}" onclick="selectDrug('${inputId}', '${drug.name}')">
                         <div class="drug-item-name">${drug.name}</div>
                         <div style="font-size: 0.8em; color: var(--text-secondary);">${drug.englishName} · ${drug.manufacturer}</div>
-                    </div>
-                `;
-            }
+                        </div>
+                    `;
+                }
         });
 
         itemsContainer.innerHTML = html;
@@ -2738,7 +2735,7 @@ async function checkInteraction() {
         if (durInfo) {
             updateDURStats();
         }
-        
+
         // Display result
         console.log('🔍 결과 섹션 표시 시작');
         console.log('resultSection:', resultSection);
