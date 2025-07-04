@@ -3591,4 +3591,19 @@ function enhanceScrollObserver() {
 // 스크롤 이벤트 리스너 등록
 window.addEventListener('scroll', handleScroll, { passive: true });
 
+// 일회성 키 등록 함수
+function registerOneTimeToken() {
+    const token = document.getElementById('oneTimeToken').value.trim();
+    if (!token) {
+        utils.showAlert('일회성 키를 입력하세요.', 'warning');
+        return;
+    }
+    localStorage.setItem('oneTimeToken', token);
+    utils.showAlert('일회성 키가 등록되었습니다!', 'success');
+}
+
+// Perplexity API 호출 시 예시 (실제 구현은 서버 프록시 필요)
+// fetch('/api/proxy/perplexity', { method: 'POST', headers: { 'Authorization': 'Bearer ' + localStorage.getItem('oneTimeToken') }, ... })
+// 서버가 oneTimeToken을 검증 후 Perplexity API에 요청하고, 결과만 프론트로 반환해야 함
+
  

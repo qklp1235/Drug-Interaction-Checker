@@ -124,6 +124,14 @@
                     </div>
                 </div>
 
+                <!-- 일회성 키 입력 -->
+                <div class="form-group">
+                    <label for="oneTimeToken" class="form-label">🎁 일회성 키 입력</label>
+                    <input type="text" id="oneTimeToken" class="form-input" placeholder="서버에서 발급받은 일회성 키를 입력하세요">
+                    <button class="btn btn-secondary" type="button" onclick="registerOneTimeToken()">일회성 키로 인증</button>
+                    <div class="form-help">일회성 키는 서버에서 발급받아야 하며, Perplexity API 키는 절대 노출되지 않습니다.</div>
+                </div>
+
                 <!-- Gemini 설정 -->
                 <div class="form-group ai-config" data-provider="gemini">
                     <label for="geminiApiKey" class="form-label">

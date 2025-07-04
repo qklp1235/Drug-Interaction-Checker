@@ -1533,17 +1533,17 @@ const utils = {
 
     // Perplexity API call
     async callPerplexity(messages, options = {}) {
-        const apiKey = getAPIKey('perplexity');
-        
-        if (!apiKey) {
-            throw new Error('Perplexity API key is not set.');
+        // 프록시 서버를 통한 Perplexity API 호출
+        const oneTimeToken = localStorage.getItem('oneTimeToken');
+        if (!oneTimeToken) {
+            utils.showAlert('일회성 키가 필요합니다. 설정에서 입력해 주세요.', 'warning');
+            throw new Error('일회성 키가 필요합니다.');
         }
-
-        const response = await fetch(AI_CONFIGS.perplexity.baseUrl, {
+        const response = await fetch('/api/proxy/perplexity', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Authorization': 'Bearer ' + oneTimeToken,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 model: options.model || AI_CONFIGS.perplexity.model,
@@ -1552,12 +1552,10 @@ const utils = {
                 max_tokens: options.max_tokens || 1500
             })
         });
-
         if (!response.ok) {
             const error = await response.json();
             throw new Error(`Perplexity API error: ${error.error?.message || response.statusText}`);
         }
-
         const data = await response.json();
         return data.choices[0].message.content;
     },
@@ -3534,24 +3532,24 @@ const OneTimeAPI = {
     
     // AI 호출 시 일회성 키 사용
     async callWithOneTimeKey(messages, options = {}) {
+        // 프록시 서버를 통한 Perplexity API 호출
+        const oneTimeToken = localStorage.getItem('oneTimeToken');
+        if (!oneTimeToken) {
+            utils.showAlert('일회성 키가 필요합니다. 설정에서 입력해 주세요.', 'warning');
+            throw new Error('일회성 키가 필요합니다.');
+        }
         if (!this.canUse()) {
             throw new Error('일일 사용 한도를 초과했습니다.');
         }
-        
-        // 사용 횟수 증가
         if (!this.incrementUsage()) {
             throw new Error('일일 사용 한도를 초과했습니다.');
         }
-        
-        // UI 업데이트
         this.updateUI();
-        
-        // Perplexity API 호출
         try {
-            const response = await fetch('https://api.perplexity.ai/chat/completions', {
+            const response = await fetch('/api/proxy/perplexity', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.SHARED_API_KEY}`,
+                    'Authorization': 'Bearer ' + oneTimeToken,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -3561,14 +3559,11 @@ const OneTimeAPI = {
                     temperature: options.temperature || 0.7
                 })
             });
-            
             if (!response.ok) {
                 throw new Error(`API 호출 실패: ${response.status}`);
             }
-            
             const data = await response.json();
             return data.choices[0].message.content;
-            
         } catch (error) {
             console.error('일회성 API 호출 실패:', error);
             throw error;
