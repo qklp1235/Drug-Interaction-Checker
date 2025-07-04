@@ -163,49 +163,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- 일회성 API 키 섹션 -->
-                <div class="one-time-api-section">
-                    <h4>🎫 일회성 API 키</h4>
-                    <div class="one-time-api-info">
-                        <p>API 키가 없으신가요? 일회성 키를 생성하여 하루 5회까지 무료로 사용하세요!</p>
-                        <div class="one-time-api-features">
-                            <span class="feature-badge">✅ 24시간 유효</span>
-                            <span class="feature-badge">✅ 하루 5회 사용</span>
-                            <span class="feature-badge">✅ 무료</span>
-                            <span class="feature-badge">✅ 즉시 생성</span>
-                        </div>
-                    </div>
-                    
-                    <div class="one-time-api-controls">
-                        <button class="btn btn-success" onclick="generateOneTimeApiKey()" id="generateKeyBtn">
-                            🎫 일회성 API 키 생성
-                        </button>
-                        <button class="btn btn-secondary" onclick="checkOneTimeApiStatus()" id="checkStatusBtn" style="display: none;">
-                            📊 사용량 확인
-                        </button>
-                    </div>
-                    
-                    <div id="oneTimeApiResult" class="one-time-api-result" style="display: none;">
-                        <div class="api-key-display">
-                            <label>생성된 API 키:</label>
-                            <div class="api-key-container">
-                                <input type="text" id="generatedApiKey" readonly class="api-key-input">
-                                <button class="btn btn-small" onclick="copyApiKey()">📋 복사</button>
-                            </div>
-                        </div>
-                        <div class="api-key-info">
-                            <div class="info-item">
-                                <span class="info-label">만료 시간:</span>
-                                <span id="expiresAt" class="info-value"></span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">남은 사용 횟수:</span>
-                                <span id="remainingUses" class="info-value"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="settings-actions">
                 <button class="btn btn-secondary" onclick="closeSettings()">취소</button>

@@ -2911,20 +2911,20 @@ async function checkInteraction() {
         // 결과 섹션 자체 애니메이션 적용
         setTimeout(() => {
             try {
-                resultSection.classList.add('scroll-visible');
-                // 내부 요소들 애니메이션 적용
-                const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-slide-left, .scroll-slide-right, .scroll-fade');
-                animateElements.forEach(el => el.classList.add('scroll-visible'));
-                
+            resultSection.classList.add('scroll-visible');
+            // 내부 요소들 애니메이션 적용
+            const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-slide-left, .scroll-slide-right, .scroll-fade');
+            animateElements.forEach(el => el.classList.add('scroll-visible'));
+            
                 // 결과 섹션에 스크롤 그라데이션 적용 (함수가 있는 경우에만)
                 if (typeof setInitialScrollState === 'function') {
-                    setInitialScrollState(resultSection);
+            setInitialScrollState(resultSection);
                 }
-                
+            
                 // 스크롤 이벤트 리스너가 없다면 추가 (함수가 있는 경우에만)
                 if (!resultSection.hasAttribute('data-scroll-listener') && typeof handleElementScroll === 'function') {
-                    resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
-                    resultSection.setAttribute('data-scroll-listener', 'true');
+                resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
+                resultSection.setAttribute('data-scroll-listener', 'true');
                 }
             } catch (animError) {
                 console.error('애니메이션 적용 중 오류:', animError);
@@ -2933,7 +2933,7 @@ async function checkInteraction() {
 
         // 강제로 표시 설정
         resultSection.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
-        
+
         // Smooth scroll
         resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
@@ -2981,19 +2981,19 @@ async function checkInteraction() {
         // 에러 카드 애니메이션 적용
         setTimeout(() => {
             try {
-                resultSection.classList.add('scroll-visible');
-                const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-fade');
-                animateElements.forEach(el => el.classList.add('scroll-visible'));
-                
+            resultSection.classList.add('scroll-visible');
+            const animateElements = resultDiv.querySelectorAll('.scroll-scale, .scroll-fade');
+            animateElements.forEach(el => el.classList.add('scroll-visible'));
+            
                 // 결과 섹션에 스크롤 그라데이션 적용 (함수가 있는 경우에만)
                 if (typeof setInitialScrollState === 'function') {
-                    setInitialScrollState(resultSection);
+            setInitialScrollState(resultSection);
                 }
-                
+            
                 // 스크롤 이벤트 리스너가 없다면 추가 (함수가 있는 경우에만)
                 if (!resultSection.hasAttribute('data-scroll-listener') && typeof handleElementScroll === 'function') {
-                    resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
-                    resultSection.setAttribute('data-scroll-listener', 'true');
+                resultSection.addEventListener('scroll', () => handleElementScroll(resultSection), { passive: true });
+                resultSection.setAttribute('data-scroll-listener', 'true');
                 }
             } catch (animError) {
                 console.error('애니메이션 적용 중 오류:', animError);
@@ -4767,21 +4767,21 @@ const globalDrugSearchHandler = utils.debounce(async function(inputId) {
 
 // 글로벌 약물 검색 이벤트 초기화 함수
 function initGlobalDrugSearch() {
-    ['drug1', 'drug2'].forEach(id => {
-        const input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('input', () => globalDrugSearchHandler(id));
-            input.addEventListener('focus', () => globalDrugSearchHandler(id));
-            input.addEventListener('blur', () => {
-                setTimeout(() => {
+['drug1', 'drug2'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+        input.addEventListener('input', () => globalDrugSearchHandler(id));
+        input.addEventListener('focus', () => globalDrugSearchHandler(id));
+        input.addEventListener('blur', () => {
+            setTimeout(() => {
                     const globalList = document.getElementById('globalDrugResultList');
                     if (globalList) {
                         globalList.style.display = 'none';
                     }
-                }, 200);
-            });
-        }
-    });
+            }, 200);
+        });
+    }
+});
 }
 
 // 글로벌 드롭다운에서 약물 선택
@@ -4824,632 +4824,6 @@ function isValidDrugName(drugName) {
         Object.keys(drugNameMapping).some(k => k.toLowerCase() === lower)
     );
 }
-
-// ===== 일회성 API 키 시스템 =====
-
-// API 서버 URL (개발/운영 환경에 따라 변경)
-const API_SERVER_URL = 'http://localhost:3000';
-
-// 일회성 API 키 생성
-async function generateOneTimeApiKey() {
-    try {
-        const generateBtn = document.getElementById('generateKeyBtn');
-        const checkStatusBtn = document.getElementById('checkStatusBtn');
-        const resultDiv = document.getElementById('oneTimeApiResult');
-        
-        // 버튼 비활성화
-        generateBtn.disabled = true;
-        generateBtn.textContent = '생성 중...';
-        
-        utils.showLoading('일회성 API 키를 생성하고 있습니다...');
-        
-        const response = await fetch(`${API_SERVER_URL}/api/generate-key`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API 키 생성 실패: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // 생성된 API 키를 Perplexity 필드에 자동 입력
-            const perplexityInput = document.getElementById('perplexityApiKey');
-            if (perplexityInput) {
-                perplexityInput.value = data.apiKey;
-            }
-            
-            // 결과 표시
-            document.getElementById('generatedApiKey').value = data.apiKey;
-            document.getElementById('expiresAt').textContent = new Date(data.expiresAt).toLocaleString('ko-KR');
-            document.getElementById('remainingUses').textContent = `${data.dailyLimit}회`;
-            
-            resultDiv.style.display = 'block';
-            checkStatusBtn.style.display = 'inline-block';
-            generateBtn.style.display = 'none';
-            
-            // 설정 저장
-            SecurityUtils.secureLocalStorage.setItem('one_time_api_key', data.apiKey);
-            SecurityUtils.secureLocalStorage.setItem('one_time_api_expires', data.expiresAt);
-            SecurityUtils.secureLocalStorage.setItem('one_time_api_usage', '0');
-            
-            utils.hideLoading();
-            utils.showAlert('🎉 일회성 API 키가 성공적으로 생성되었습니다!', 'success');
-            
-            // AI 제공자 자동 변경
-            const aiProviderSelect = document.getElementById('aiProvider');
-            if (aiProviderSelect) {
-                aiProviderSelect.value = 'perplexity';
-                updateAPIStatus();
-            }
-            
-        } else {
-            throw new Error(data.error || '알 수 없는 오류가 발생했습니다.');
-        }
-        
-    } catch (error) {
-        console.error('API 키 생성 오류:', error);
-        utils.hideLoading();
-        utils.showAlert(`❌ API 키 생성 실패: ${error.message}`, 'error');
-        
-        // 버튼 복원
-        const generateBtn = document.getElementById('generateKeyBtn');
-        generateBtn.disabled = false;
-        generateBtn.textContent = '🎫 일회성 API 키 생성';
-    }
-}
-
-// 일회성 API 키 상태 확인
-async function checkOneTimeApiStatus() {
-    try {
-        const apiKey = SecurityUtils.secureLocalStorage.getItem('one_time_api_key');
-        if (!apiKey) {
-            utils.showAlert('❌ 저장된 일회성 API 키가 없습니다.', 'error');
-            return;
-        }
-        
-        utils.showLoading('사용량을 확인하고 있습니다...');
-        
-        const response = await fetch(`${API_SERVER_URL}/api/key-status?apiKey=${encodeURIComponent(apiKey)}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            if (response.status === 401) {
-                // API 키가 만료되었거나 유효하지 않음
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-                
-                utils.hideLoading();
-                utils.showAlert('❌ API 키가 만료되었습니다. 새로운 키를 생성해주세요.', 'error');
-                
-                // UI 초기화
-                resetOneTimeApiUI();
-                return;
-            }
-            throw new Error(`상태 확인 실패: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // 사용량 업데이트
-        document.getElementById('remainingUses').textContent = `${data.remaining}회`;
-        SecurityUtils.secureLocalStorage.setItem('one_time_api_usage', data.usage.toString());
-        
-        utils.hideLoading();
-        utils.showAlert(`📊 사용량 확인 완료: ${data.usage}회 사용됨, ${data.remaining}회 남음`, 'info');
-        
-    } catch (error) {
-        console.error('API 키 상태 확인 오류:', error);
-        utils.hideLoading();
-        utils.showAlert(`❌ 상태 확인 실패: ${error.message}`, 'error');
-    }
-}
-
-// API 키 복사
-function copyApiKey() {
-    try {
-        const apiKeyInput = document.getElementById('generatedApiKey');
-        const apiKey = apiKeyInput.value;
-        
-        if (!apiKey) {
-            utils.showAlert('❌ 복사할 API 키가 없습니다.', 'error');
-            return;
-        }
-        
-        // 클립보드에 복사
-        navigator.clipboard.writeText(apiKey).then(() => {
-            utils.showAlert('📋 API 키가 클립보드에 복사되었습니다!', 'success');
-            
-            // 복사 버튼 텍스트 임시 변경
-            const copyBtn = document.querySelector('.btn-small');
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '✅ 복사됨';
-            copyBtn.style.background = 'var(--success)';
-            
-            setTimeout(() => {
-                copyBtn.textContent = originalText;
-                copyBtn.style.background = '';
-            }, 2000);
-            
-        }).catch(err => {
-            console.error('클립보드 복사 실패:', err);
-            utils.showAlert('❌ 클립보드 복사에 실패했습니다.', 'error');
-        });
-        
-    } catch (error) {
-        console.error('API 키 복사 오류:', error);
-        utils.showAlert('❌ API 키 복사 중 오류가 발생했습니다.', 'error');
-    }
-}
-
-// 일회성 API UI 초기화
-function resetOneTimeApiUI() {
-    const generateBtn = document.getElementById('generateKeyBtn');
-    const checkStatusBtn = document.getElementById('checkStatusBtn');
-    const resultDiv = document.getElementById('oneTimeApiResult');
-    
-    generateBtn.style.display = 'inline-block';
-    generateBtn.disabled = false;
-    generateBtn.textContent = '🎫 일회성 API 키 생성';
-    
-    checkStatusBtn.style.display = 'none';
-    resultDiv.style.display = 'none';
-}
-
-// 일회성 API 키 상태 확인 및 UI 업데이트
-function checkOneTimeApiKeyStatus() {
-    const apiKey = SecurityUtils.secureLocalStorage.getItem('one_time_api_key');
-    const expiresAt = SecurityUtils.secureLocalStorage.getItem('one_time_api_expires');
-    
-    if (!apiKey || !expiresAt) {
-        resetOneTimeApiUI();
-        return;
-    }
-    
-    // 만료 시간 확인
-    const now = new Date();
-    const expiryDate = new Date(expiresAt);
-    
-    if (now > expiryDate) {
-        // 만료된 키 정리
-        SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-        SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-        SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-        
-        resetOneTimeApiUI();
-        return;
-    }
-    
-    // 유효한 키가 있으면 UI 업데이트
-    const generateBtn = document.getElementById('generateKeyBtn');
-    const checkStatusBtn = document.getElementById('checkStatusBtn');
-    const resultDiv = document.getElementById('oneTimeApiResult');
-    
-    if (generateBtn && checkStatusBtn && resultDiv) {
-        generateBtn.style.display = 'none';
-        checkStatusBtn.style.display = 'inline-block';
-        resultDiv.style.display = 'block';
-        
-        // API 키 표시
-        const apiKeyInput = document.getElementById('generatedApiKey');
-        if (apiKeyInput) {
-            apiKeyInput.value = apiKey;
-        }
-        
-        // 만료 시간 표시
-        const expiresAtSpan = document.getElementById('expiresAt');
-        if (expiresAtSpan) {
-            expiresAtSpan.textContent = expiryDate.toLocaleString('ko-KR');
-        }
-        
-        // 사용량 표시
-        const usage = SecurityUtils.secureLocalStorage.getItem('one_time_api_usage') || '0';
-        const remainingUsesSpan = document.getElementById('remainingUses');
-        if (remainingUsesSpan) {
-            remainingUsesSpan.textContent = `${Math.max(0, 5 - parseInt(usage))}회`;
-        }
-    }
-}
-
-// 기존 AI 호출 함수를 일회성 API 키와 연동
-const originalCallPerplexity = utils.callPerplexity;
-utils.callPerplexity = async function(messages, options = {}) {
-    try {
-        // 일회성 API 키 확인
-        const oneTimeApiKey = SecurityUtils.secureLocalStorage.getItem('one_time_api_key');
-        const expiresAt = SecurityUtils.secureLocalStorage.getItem('one_time_api_expires');
-        
-        if (oneTimeApiKey && expiresAt) {
-            const now = new Date();
-            const expiryDate = new Date(expiresAt);
-            
-            if (now <= expiryDate) {
-                // 일회성 API 키를 사용하여 서버를 통해 호출
-                const response = await fetch(`${API_SERVER_URL}/api/check-interaction`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-API-Key': oneTimeApiKey
-                    },
-                    body: JSON.stringify({
-                        drugs: messages[messages.length - 1].content.match(/between these medications: (.+?)\./)?.[1]?.split(', ') || []
-                    })
-                });
-                
-                if (!response.ok) {
-                    if (response.status === 429) {
-                        throw new Error('일일 사용 한도를 초과했습니다. (하루 5회)');
-                    } else if (response.status === 401) {
-                        // API 키 만료
-                        SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-                        SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-                        SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-                        resetOneTimeApiUI();
-                        throw new Error('API 키가 만료되었습니다. 새로운 키를 생성해주세요.');
-                    }
-                    throw new Error(`API 호출 실패: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // 사용량 업데이트
-                SecurityUtils.secureLocalStorage.setItem('one_time_api_usage', data.usage.toString());
-                
-                return {
-                    content: data.interaction,
-                    usage: data.usage,
-                    remaining: data.remaining
-                };
-            } else {
-                // 만료된 키 정리
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-                resetOneTimeApiUI();
-            }
-        }
-        
-        // 기존 방식으로 호출
-        return await originalCallPerplexity.call(this, messages, options);
-        
-    } catch (error) {
-        console.error('Perplexity API 호출 오류:', error);
-        throw error;
-    }
-};
-
-// 페이지 로드 시 일회성 API 키 상태 확인
-document.addEventListener('DOMContentLoaded', function() {
-    // 기존 초기화 코드...
-    
-    // 일회성 API 키 상태 확인
-    setTimeout(() => {
-        checkOneTimeApiKeyStatus();
-    }, 1000);
-});
-
-// ===== 일회성 API 키 시스템 =====
-
-// API 서버 URL (개발/운영 환경에 따라 변경)
-const API_SERVER_URL = 'http://localhost:3000';
-
-// 일회성 API 키 생성
-async function generateOneTimeApiKey() {
-    try {
-        const generateBtn = document.getElementById('generateKeyBtn');
-        const checkStatusBtn = document.getElementById('checkStatusBtn');
-        const resultDiv = document.getElementById('oneTimeApiResult');
-        
-        // 버튼 비활성화
-        generateBtn.disabled = true;
-        generateBtn.textContent = '생성 중...';
-        
-        utils.showLoading('일회성 API 키를 생성하고 있습니다...');
-        
-        const response = await fetch(`${API_SERVER_URL}/api/generate-key`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API 키 생성 실패: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // 생성된 API 키를 Perplexity 필드에 자동 입력
-            const perplexityInput = document.getElementById('perplexityApiKey');
-            if (perplexityInput) {
-                perplexityInput.value = data.apiKey;
-            }
-            
-            // 결과 표시
-            document.getElementById('generatedApiKey').value = data.apiKey;
-            document.getElementById('expiresAt').textContent = new Date(data.expiresAt).toLocaleString('ko-KR');
-            document.getElementById('remainingUses').textContent = `${data.dailyLimit}회`;
-            
-            resultDiv.style.display = 'block';
-            checkStatusBtn.style.display = 'inline-block';
-            generateBtn.style.display = 'none';
-            
-            // 설정 저장
-            SecurityUtils.secureLocalStorage.setItem('one_time_api_key', data.apiKey);
-            SecurityUtils.secureLocalStorage.setItem('one_time_api_expires', data.expiresAt);
-            SecurityUtils.secureLocalStorage.setItem('one_time_api_usage', '0');
-            
-            utils.hideLoading();
-            utils.showAlert('🎉 일회성 API 키가 성공적으로 생성되었습니다!', 'success');
-            
-            // AI 제공자 자동 변경
-            const aiProviderSelect = document.getElementById('aiProvider');
-            if (aiProviderSelect) {
-                aiProviderSelect.value = 'perplexity';
-                updateAPIStatus();
-            }
-            
-        } else {
-            throw new Error(data.error || '알 수 없는 오류가 발생했습니다.');
-        }
-        
-    } catch (error) {
-        console.error('API 키 생성 오류:', error);
-        utils.hideLoading();
-        utils.showAlert(`❌ API 키 생성 실패: ${error.message}`, 'error');
-        
-        // 버튼 복원
-        const generateBtn = document.getElementById('generateKeyBtn');
-        generateBtn.disabled = false;
-        generateBtn.textContent = '🎫 일회성 API 키 생성';
-    }
-}
-
-// 일회성 API 키 상태 확인
-async function checkOneTimeApiStatus() {
-    try {
-        const apiKey = SecurityUtils.secureLocalStorage.getItem('one_time_api_key');
-        if (!apiKey) {
-            utils.showAlert('❌ 저장된 일회성 API 키가 없습니다.', 'error');
-            return;
-        }
-        
-        utils.showLoading('사용량을 확인하고 있습니다...');
-        
-        const response = await fetch(`${API_SERVER_URL}/api/key-status?apiKey=${encodeURIComponent(apiKey)}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            if (response.status === 401) {
-                // API 키가 만료되었거나 유효하지 않음
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-                
-                utils.hideLoading();
-                utils.showAlert('❌ API 키가 만료되었습니다. 새로운 키를 생성해주세요.', 'error');
-                
-                // UI 초기화
-                resetOneTimeApiUI();
-                return;
-            }
-            throw new Error(`상태 확인 실패: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // 사용량 업데이트
-        document.getElementById('remainingUses').textContent = `${data.remaining}회`;
-        SecurityUtils.secureLocalStorage.setItem('one_time_api_usage', data.usage.toString());
-        
-        utils.hideLoading();
-        utils.showAlert(`📊 사용량 확인 완료: ${data.usage}회 사용됨, ${data.remaining}회 남음`, 'info');
-        
-    } catch (error) {
-        console.error('API 키 상태 확인 오류:', error);
-        utils.hideLoading();
-        utils.showAlert(`❌ 상태 확인 실패: ${error.message}`, 'error');
-    }
-}
-
-// API 키 복사
-function copyApiKey() {
-    try {
-        const apiKeyInput = document.getElementById('generatedApiKey');
-        const apiKey = apiKeyInput.value;
-        
-        if (!apiKey) {
-            utils.showAlert('❌ 복사할 API 키가 없습니다.', 'error');
-            return;
-        }
-        
-        // 클립보드에 복사
-        navigator.clipboard.writeText(apiKey).then(() => {
-            utils.showAlert('📋 API 키가 클립보드에 복사되었습니다!', 'success');
-            
-            // 복사 버튼 텍스트 임시 변경
-            const copyBtn = document.querySelector('.btn-small');
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = '✅ 복사됨';
-            copyBtn.style.background = 'var(--success)';
-            
-            setTimeout(() => {
-                copyBtn.textContent = originalText;
-                copyBtn.style.background = '';
-            }, 2000);
-            
-        }).catch(err => {
-            console.error('클립보드 복사 실패:', err);
-            utils.showAlert('❌ 클립보드 복사에 실패했습니다.', 'error');
-        });
-        
-    } catch (error) {
-        console.error('API 키 복사 오류:', error);
-        utils.showAlert('❌ API 키 복사 중 오류가 발생했습니다.', 'error');
-    }
-}
-
-// 일회성 API UI 초기화
-function resetOneTimeApiUI() {
-    const generateBtn = document.getElementById('generateKeyBtn');
-    const checkStatusBtn = document.getElementById('checkStatusBtn');
-    const resultDiv = document.getElementById('oneTimeApiResult');
-    
-    generateBtn.style.display = 'inline-block';
-    generateBtn.disabled = false;
-    generateBtn.textContent = '🎫 일회성 API 키 생성';
-    
-    checkStatusBtn.style.display = 'none';
-    resultDiv.style.display = 'none';
-}
-
-// 일회성 API 키 상태 확인 및 UI 업데이트
-function checkOneTimeApiKeyStatus() {
-    const apiKey = SecurityUtils.secureLocalStorage.getItem('one_time_api_key');
-    const expiresAt = SecurityUtils.secureLocalStorage.getItem('one_time_api_expires');
-    
-    if (!apiKey || !expiresAt) {
-        resetOneTimeApiUI();
-        return;
-    }
-    
-    // 만료 시간 확인
-    const now = new Date();
-    const expiryDate = new Date(expiresAt);
-    
-    if (now > expiryDate) {
-        // 만료된 키 정리
-        SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-        SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-        SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-        
-        resetOneTimeApiUI();
-        return;
-    }
-    
-    // 유효한 키가 있으면 UI 업데이트
-    const generateBtn = document.getElementById('generateKeyBtn');
-    const checkStatusBtn = document.getElementById('checkStatusBtn');
-    const resultDiv = document.getElementById('oneTimeApiResult');
-    
-    if (generateBtn && checkStatusBtn && resultDiv) {
-        generateBtn.style.display = 'none';
-        checkStatusBtn.style.display = 'inline-block';
-        resultDiv.style.display = 'block';
-        
-        // API 키 표시
-        const apiKeyInput = document.getElementById('generatedApiKey');
-        if (apiKeyInput) {
-            apiKeyInput.value = apiKey;
-        }
-        
-        // 만료 시간 표시
-        const expiresAtSpan = document.getElementById('expiresAt');
-        if (expiresAtSpan) {
-            expiresAtSpan.textContent = expiryDate.toLocaleString('ko-KR');
-        }
-        
-        // 사용량 표시
-        const usage = SecurityUtils.secureLocalStorage.getItem('one_time_api_usage') || '0';
-        const remainingUsesSpan = document.getElementById('remainingUses');
-        if (remainingUsesSpan) {
-            remainingUsesSpan.textContent = `${Math.max(0, 5 - parseInt(usage))}회`;
-        }
-    }
-}
-
-// 기존 AI 호출 함수를 일회성 API 키와 연동
-const originalCallPerplexity = utils.callPerplexity;
-utils.callPerplexity = async function(messages, options = {}) {
-    try {
-        // 일회성 API 키 확인
-        const oneTimeApiKey = SecurityUtils.secureLocalStorage.getItem('one_time_api_key');
-        const expiresAt = SecurityUtils.secureLocalStorage.getItem('one_time_api_expires');
-        
-        if (oneTimeApiKey && expiresAt) {
-            const now = new Date();
-            const expiryDate = new Date(expiresAt);
-            
-            if (now <= expiryDate) {
-                // 일회성 API 키를 사용하여 서버를 통해 호출
-                const response = await fetch(`${API_SERVER_URL}/api/check-interaction`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-API-Key': oneTimeApiKey
-                    },
-                    body: JSON.stringify({
-                        drugs: messages[messages.length - 1].content.match(/between these medications: (.+?)\./)?.[1]?.split(', ') || []
-                    })
-                });
-                
-                if (!response.ok) {
-                    if (response.status === 429) {
-                        throw new Error('일일 사용 한도를 초과했습니다. (하루 5회)');
-                    } else if (response.status === 401) {
-                        // API 키 만료
-                        SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-                        SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-                        SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-                        resetOneTimeApiUI();
-                        throw new Error('API 키가 만료되었습니다. 새로운 키를 생성해주세요.');
-                    }
-                    throw new Error(`API 호출 실패: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // 사용량 업데이트
-                SecurityUtils.secureLocalStorage.setItem('one_time_api_usage', data.usage.toString());
-                
-                return {
-                    content: data.interaction,
-                    usage: data.usage,
-                    remaining: data.remaining
-                };
-            } else {
-                // 만료된 키 정리
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_key');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_expires');
-                SecurityUtils.secureLocalStorage.removeItem('one_time_api_usage');
-                resetOneTimeApiUI();
-            }
-        }
-        
-        // 기존 방식으로 호출
-        return await originalCallPerplexity.call(this, messages, options);
-        
-    } catch (error) {
-        console.error('Perplexity API 호출 오류:', error);
-        throw error;
-    }
-};
-
-// 페이지 로드 시 일회성 API 키 상태 확인
-document.addEventListener('DOMContentLoaded', function() {
-    // 기존 초기화 코드...
-    
-    // 일회성 API 키 상태 확인
-    setTimeout(() => {
-        checkOneTimeApiKeyStatus();
-    }, 1000);
-});
 
 
 
