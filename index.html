@@ -164,6 +164,49 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- One-time API Key Section -->
+                <div class="one-time-api-section">
+                    <h4>🎫 One-time API Key</h4>
+                    <div class="one-time-api-info">
+                        <p>Don't have an API key? Generate a one-time key to use up to 5 times per day for free!</p>
+                        <div class="one-time-api-features">
+                            <span class="feature-badge">✅ 24-hour validity</span>
+                            <span class="feature-badge">✅ 5 uses per day</span>
+                            <span class="feature-badge">✅ Free</span>
+                            <span class="feature-badge">✅ Instant generation</span>
+                        </div>
+                    </div>
+                    
+                    <div class="one-time-api-controls">
+                        <button class="btn btn-success" onclick="generateOneTimeApiKey()" id="generateKeyBtn">
+                            🎫 Generate One-time API Key
+                        </button>
+                        <button class="btn btn-secondary" onclick="checkOneTimeApiStatus()" id="checkStatusBtn" style="display: none;">
+                            📊 Check Usage
+                        </button>
+                    </div>
+                    
+                    <div id="oneTimeApiResult" class="one-time-api-result" style="display: none;">
+                        <div class="api-key-display">
+                            <label>Generated API Key:</label>
+                            <div class="api-key-container">
+                                <input type="text" id="generatedApiKey" readonly class="api-key-input">
+                                <button class="btn btn-small" onclick="copyApiKey()">📋 Copy</button>
+                            </div>
+                        </div>
+                        <div class="api-key-info">
+                            <div class="info-item">
+                                <span class="info-label">Expires at:</span>
+                                <span id="expiresAt" class="info-value"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Remaining uses:</span>
+                                <span id="remainingUses" class="info-value"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="settings-actions">
                 <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
