@@ -124,14 +124,6 @@
                     </div>
                 </div>
 
-                <!-- 일회성 키 입력 -->
-                <div class="form-group">
-                    <label for="oneTimeToken" class="form-label">🎁 일회성 키 입력</label>
-                    <input type="text" id="oneTimeToken" class="form-input" placeholder="서버에서 발급받은 일회성 키를 입력하세요">
-                    <button class="btn btn-secondary" type="button" onclick="registerOneTimeToken()">일회성 키로 인증</button>
-                    <div class="form-help">일회성 키는 서버에서 발급받아야 하며, Perplexity API 키는 절대 노출되지 않습니다.</div>
-                </div>
-
                 <!-- Gemini 설정 -->
                 <div class="form-group ai-config" data-provider="gemini">
                     <label for="geminiApiKey" class="form-label">
@@ -168,23 +160,6 @@
                         <div class="status-item" id="gemini-status">
                             <span class="status-icon">⚪</span>
                             <span>Gemini</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 일회성 API 키 섹션 -->
-                <div class="form-group">
-                    <h4>🎁 일회성 API 키 (하루 5회 무료)</h4>
-                    <div class="one-time-api-section">
-                        <div class="usage-info">
-                            <span class="usage-text">오늘 사용 횟수: <span id="dailyUsageCount">0</span>/5</span>
-                            <span class="usage-reset">다음 리셋: <span id="nextResetTime">-</span></span>
-                        </div>
-                        <button class="btn btn-secondary" onclick="getOneTimeAPIKey()" id="getOneTimeKeyBtn">
-                            🔑 일회성 키 받기
-                        </button>
-                        <div class="form-help">
-                            API 키가 없는 사용자를 위한 무료 서비스입니다. 하루에 최대 5번까지 사용할 수 있습니다.
                         </div>
                     </div>
                 </div>

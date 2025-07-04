@@ -194,7 +194,7 @@ const AI_CONFIGS = {
     perplexity: {
         name: 'Perplexity',
         baseUrl: 'https://api.perplexity.ai/chat/completions',
-        model: 'pplx-70b-online',
+        model: 'llama-3.1-sonar-small-128k-online',
         icon: '🔮'
     },
     gemini: {
@@ -1533,17 +1533,17 @@ const utils = {
 
     // Perplexity API call
     async callPerplexity(messages, options = {}) {
-        // 프록시 서버를 통한 Perplexity API 호출
-        const oneTimeToken = localStorage.getItem('oneTimeToken');
-        if (!oneTimeToken) {
-            utils.showAlert('일회성 키가 필요합니다. 설정에서 입력해 주세요.', 'warning');
-            throw new Error('일회성 키가 필요합니다.');
+        const apiKey = getAPIKey('perplexity');
+        
+        if (!apiKey) {
+            throw new Error('Perplexity API key is not set.');
         }
-        const response = await fetch('/api/proxy/perplexity', {
+
+        const response = await fetch(AI_CONFIGS.perplexity.baseUrl, {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + oneTimeToken,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
                 model: options.model || AI_CONFIGS.perplexity.model,
@@ -1552,10 +1552,12 @@ const utils = {
                 max_tokens: options.max_tokens || 1500
             })
         });
+
         if (!response.ok) {
             const error = await response.json();
             throw new Error(`Perplexity API error: ${error.error?.message || response.statusText}`);
         }
+
         const data = await response.json();
         return data.choices[0].message.content;
     },
@@ -1626,21 +1628,6 @@ const utils = {
         
         try {
             let result;
-            
-            // 일회성 API 키 사용 가능 여부 확인
-            const availableProviders = this.getAvailableProviders();
-            const canUseOneTime = OneTimeAPI.canUse();
-            
-            if (availableProviders.length === 0 && canUseOneTime) {
-                // 일반 API 키가 없고 일회성 API를 사용할 수 있는 경우
-                console.log('🔑 Using one-time API key for analysis...');
-                result = await OneTimeAPI.callWithOneTimeKey(messages, options);
-                return { result, provider: 'Perplexity (일회성)' };
-            } else if (availableProviders.length === 0 && !canUseOneTime) {
-                throw new Error('사용 가능한 API 키가 없고 일일 사용 한도도 초과되었습니다.');
-            }
-            
-            // 일반 API 키 사용
             switch (provider) {
                 case 'openai':
                     result = await this.callOpenAI(messages, options);
@@ -1661,22 +1648,6 @@ const utils = {
             return { result, provider: config.name };
         } catch (error) {
             console.error(`${config.name} API error:`, error);
-            
-            // API 키가 없고 일회성 API를 사용할 수 있는 경우 자동으로 시도
-            const availableProviders = this.getAvailableProviders();
-            const canUseOneTime = OneTimeAPI.canUse();
-            
-            if (availableProviders.length === 0 && canUseOneTime) {
-                try {
-                    console.log('🔄 Retrying with one-time API key...');
-                    const result = await OneTimeAPI.callWithOneTimeKey(messages, options);
-                    return { result, provider: 'Perplexity (일회성)' };
-                } catch (oneTimeError) {
-                    console.error('One-time API error:', oneTimeError);
-                    throw new Error('모든 API 호출에 실패했습니다. 설정에서 API 키를 확인하거나 내일 다시 시도해주세요.');
-                }
-            }
-            
             throw error;
         }
     },
@@ -3124,9 +3095,6 @@ function openSettings() {
     // Update API status
     updateAPIStatus();
     
-    // Update one-time API key UI
-    OneTimeAPI.updateUI();
-    
     modal.classList.add('show');
     
     // 설정 모달 바디에 스크롤 그라데이션 적용
@@ -3413,184 +3381,6 @@ function checkAPIKeyStatus() {
     }
 }
 
-// 일회성 API 키 시스템
-const OneTimeAPI = {
-    // Perplexity API 키 (실제 환경에서는 서버에서 관리해야 함)
-    // 사용자의 .env 파일에서 가져온 키를 여기에 넣어주세요
-    // 예: pplx-1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-    SHARED_API_KEY: 'pplx-your-actual-api-key-here',
-    MAX_DAILY_USAGE: 5,
-    
-    // 사용 횟수 관리
-    getDailyUsage() {
-        const today = new Date().toDateString();
-        const usage = JSON.parse(localStorage.getItem('oneTimeAPIUsage') || '{}');
-        return usage[today] || 0;
-    },
-    
-    setDailyUsage(count) {
-        const today = new Date().toDateString();
-        const usage = JSON.parse(localStorage.getItem('oneTimeAPIUsage') || '{}');
-        usage[today] = count;
-        localStorage.setItem('oneTimeAPIUsage', JSON.stringify(usage));
-    },
-    
-    incrementUsage() {
-        const currentUsage = this.getDailyUsage();
-        if (currentUsage < this.MAX_DAILY_USAGE) {
-            this.setDailyUsage(currentUsage + 1);
-            return true;
-        }
-        return false;
-    },
-    
-    // 다음 리셋 시간 계산
-    getNextResetTime() {
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-        return tomorrow;
-    },
-    
-    // 사용 가능 여부 확인
-    canUse() {
-        return this.getDailyUsage() < this.MAX_DAILY_USAGE;
-    },
-    
-    // UI 업데이트
-    updateUI() {
-        const usageCount = this.getDailyUsage();
-        const nextReset = this.getNextResetTime();
-        
-        const countElement = document.getElementById('dailyUsageCount');
-        const resetElement = document.getElementById('nextResetTime');
-        const buttonElement = document.getElementById('getOneTimeKeyBtn');
-        
-        if (countElement) {
-            countElement.textContent = usageCount;
-        }
-        
-        if (resetElement) {
-            const timeString = nextReset.toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            resetElement.textContent = timeString;
-        }
-        
-        if (buttonElement) {
-            if (this.canUse()) {
-                buttonElement.disabled = false;
-                buttonElement.textContent = '🔑 일회성 키 받기';
-            } else {
-                buttonElement.disabled = true;
-                buttonElement.textContent = '❌ 일일 한도 초과';
-            }
-        }
-    },
-    
-    // 일회성 API 키 발급
-    async getOneTimeAPIKey() {
-        if (!this.canUse()) {
-            utils.showAlert('오늘의 사용 한도를 초과했습니다. 내일 다시 시도해주세요.', 'warning');
-            return null;
-        }
-        
-        try {
-            // 사용 횟수 증가
-            if (!this.incrementUsage()) {
-                utils.showAlert('오늘의 사용 한도를 초과했습니다.', 'warning');
-                return null;
-            }
-            
-            // UI 업데이트
-            this.updateUI();
-            
-            // 임시 API 키 생성 (실제로는 서버에서 관리해야 함)
-            const tempKey = this.SHARED_API_KEY;
-            
-            // Perplexity API 키로 설정
-            SecurityUtils.secureLocalStorage.setItem('perplexity_api_key', tempKey);
-            
-            utils.showAlert('일회성 API 키가 발급되었습니다! Perplexity AI를 사용할 수 있습니다.', 'success');
-            
-            // API 상태 업데이트
-            updateAPIStatus();
-            
-            return tempKey;
-            
-        } catch (error) {
-            console.error('일회성 API 키 발급 실패:', error);
-            utils.showAlert('일회성 API 키 발급에 실패했습니다. 다시 시도해주세요.', 'error');
-            return null;
-        }
-    },
-    
-    // AI 호출 시 일회성 키 사용
-    async callWithOneTimeKey(messages, options = {}) {
-        // 프록시 서버를 통한 Perplexity API 호출
-        const oneTimeToken = localStorage.getItem('oneTimeToken');
-        if (!oneTimeToken) {
-            utils.showAlert('일회성 키가 필요합니다. 설정에서 입력해 주세요.', 'warning');
-            throw new Error('일회성 키가 필요합니다.');
-        }
-        if (!this.canUse()) {
-            throw new Error('일일 사용 한도를 초과했습니다.');
-        }
-        if (!this.incrementUsage()) {
-            throw new Error('일일 사용 한도를 초과했습니다.');
-        }
-        this.updateUI();
-        try {
-            const response = await fetch('/api/proxy/perplexity', {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + oneTimeToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: 'pplx-70b-online',
-                    messages: messages,
-                    max_tokens: options.maxTokens || 1000,
-                    temperature: options.temperature || 0.7
-                })
-            });
-            if (!response.ok) {
-                throw new Error(`API 호출 실패: ${response.status}`);
-            }
-            const data = await response.json();
-            return data.choices[0].message.content;
-        } catch (error) {
-            console.error('일회성 API 호출 실패:', error);
-            throw error;
-        }
-    }
-};
-
-// 일회성 API 키 발급 함수 (HTML에서 호출)
-async function getOneTimeAPIKey() {
-    try {
-        const res = await fetch('/api/issue-onetime-key', { method: 'POST' });
-        const data = await res.json();
-        if (data.token) {
-            const input = document.getElementById('oneTimeToken');
-            if (input) {
-                input.value = data.token;
-                registerOneTimeToken();
-            }
-        } else {
-            utils.showAlert('일회성 키 발급 실패', 'error');
-        }
-    } catch (e) {
-        utils.showAlert('일회성 키 발급 실패', 'error');
-    }
-}
-window.getOneTimeAPIKey = getOneTimeAPIKey;
-
 // Developer Tools
 const devTools = {
     clearCache() {
@@ -3727,8 +3517,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize API status (for settings modal)
     setTimeout(() => {
         updateAPIStatus();
-        // Initialize one-time API key UI
-        OneTimeAPI.updateUI();
     }, 100);
 
     // Search input event
@@ -5036,17 +4824,6 @@ function isValidDrugName(drugName) {
         Object.keys(drugNameMapping).some(k => k.toLowerCase() === lower)
     );
 }
-
-function registerOneTimeToken() {
-    const token = document.getElementById('oneTimeToken').value.trim();
-    if (!token) {
-        utils.showAlert('일회성 키를 입력하세요.', 'warning');
-        return;
-    }
-    localStorage.setItem('oneTimeToken', token);
-    utils.showAlert('일회성 키가 등록되었습니다!', 'success');
-}
-window.registerOneTimeToken = registerOneTimeToken;
 
 
 
