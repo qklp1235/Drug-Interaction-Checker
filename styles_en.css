@@ -2916,7 +2916,7 @@ html {
 /* Mobile Styles */
 @media (max-width: 768px) {
     .footer {
-        margin-top: 2rem;
+        margin-top: 0.5rem;
     }
     
     .footer-container {
