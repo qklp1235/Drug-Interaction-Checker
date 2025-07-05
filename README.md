@@ -161,7 +161,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### ✨ 주요 기능
 
 #### 🔍 **지능형 검색 엔진**
-- **실시간 검색** (300ms 디바운스)
+- **실시간 검색** (300ms;0.3초 디바운스)
 - **오타 허용** 및 퍼지 매칭
 - **부분 검색** 기능 (예: "아스파" → "아스피린")
 - **한국어-영어 혼용** 지원
